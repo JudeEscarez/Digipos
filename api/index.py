@@ -483,11 +483,15 @@ class handler(BaseHTTPRequestHandler):
                 self.wfile.write(page)
                 return
         query = {k: v[0] for k, v in urllib.parse.parse_qs(parsed.query).items()}
+        # vercel.json rewrites /api/<name> -> /api/index?route=<name>; Vercel then hands us the
+        # rewritten path, so recover the real route from the query string.
+        route = query.pop("route", None)
+        path = "/api/" + route if route else parsed.path
         body = None
         if method == "POST":
             n = int(self.headers.get("Content-Length") or 0)
             body = json.loads(self.rfile.read(n) or b"{}") if n else {}
-        status, payload = dispatch(method, parsed.path, query, body)
+        status, payload = dispatch(method, path, query, body)
         out = json.dumps(payload, default=str).encode()
         self.send_response(status)
         self.send_header("Content-Type", "application/json")

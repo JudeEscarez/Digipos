@@ -461,9 +461,27 @@ def dispatch(method, path, query, body):
         return 502, {"error": str(e)}
 
 
+def _page():
+    for p in (os.path.join(ROOT, "index.html"), os.path.join(os.getcwd(), "index.html")):
+        if os.path.exists(p):
+            with open(p, "rb") as f:
+                return f.read()
+    return None
+
+
 class handler(BaseHTTPRequestHandler):
     def _run(self, method):
         parsed = urllib.parse.urlparse(self.path)
+        # Vercel may route every path (not just /api) to this function: serve the page too.
+        if method == "GET" and not parsed.path.startswith("/api"):
+            page = _page()
+            if page is not None:
+                self.send_response(200)
+                self.send_header("Content-Type", "text/html; charset=utf-8")
+                self.send_header("Cache-Control", "no-store")
+                self.end_headers()
+                self.wfile.write(page)
+                return
         query = {k: v[0] for k, v in urllib.parse.parse_qs(parsed.query).items()}
         body = None
         if method == "POST":

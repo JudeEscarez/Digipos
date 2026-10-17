@@ -1,0 +1,12 @@
+[
+ {"id": "X001", "business_name": "Example: Karama Corner Cafe", "category": "Cafe", "area": "Al Karama", "licence_issue_date": "2026-09-22", "has_phone": true},
+ {"id": "X002", "business_name": "Example: Bay Avenue Grill", "category": "Restaurant", "area": "Business Bay", "licence_issue_date": "2026-08-30", "has_phone": true},
+ {"id": "X003", "business_name": "Example: Barsha Smile Dental", "category": "Dental clinic", "area": "Al Barsha 1", "licence_issue_date": "2026-09-10", "has_phone": true},
+ {"id": "X004", "business_name": "Example: Rigga Ladies Salon", "category": "Salon", "area": "Al Rigga, Deira", "licence_issue_date": "2026-10-02", "has_phone": false},
+ {"id": "X005", "business_name": "Example: Cluster D Laundry", "category": "Laundry", "area": "JLT", "licence_issue_date": "2026-07-15", "has_phone": true},
+ {"id": "X006", "business_name": "Example: Quoz Fade Barbers", "category": "Barber", "area": "Al Quoz 3", "licence_issue_date": "2026-09-28", "has_phone": true},
+ {"id": "X007", "business_name": "Example: Satwa Fresh Mart", "category": "Supermarket", "area": "Al Satwa", "licence_issue_date": "2026-06-20", "has_phone": true},
+ {"id": "X008", "business_name": "Example: Jumeirah Juice Bar", "category": "Cafe", "area": "Jumeirah 3", "licence_issue_date": "2026-10-08", "has_phone": false},
+ {"id": "X009", "business_name": "Example: Deira Gift House", "category": "Retail shop", "area": "Al Muraqqabat, Deira", "licence_issue_date": "2026-08-05", "has_phone": true},
+ {"id": "X010", "business_name": "Example: JLT Pulse Gym", "category": "Gym", "area": "JLT", "licence_issue_date": "2026-09-01", "has_phone": true}
+]

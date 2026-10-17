@@ -1,0 +1,5 @@
+.env
+data/local_db.json
+__pycache__/
+*.xlsx
+.vercel

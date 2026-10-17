@@ -1,0 +1,4 @@
+scripts/
+dev_server.py
+data/local_db.json
+*.xlsx

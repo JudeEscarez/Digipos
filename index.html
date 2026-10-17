@@ -1,0 +1,330 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Digipos Lead Radar</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f4f2ee; --panel:#ffffff; --ink:#15211f; --muted:#5f6b68; --line:#e3dfd8;
+  --brand:#0f5b52; --brand-ink:#ffffff; --brand-soft:#e2efec;
+  --accent:#d9832b; --good:#1f7a4d; --warn:#b7791f; --bad:#b4372f;
+  --good-soft:#e3f2ea; --warn-soft:#fbf0dc; --bad-soft:#f8e4e2; --ex-soft:#efe9fb; --ex:#5b3fa8;
+  --shadow:0 1px 2px rgba(20,30,28,.06),0 6px 24px rgba(20,30,28,.06);
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0f1514; --panel:#172120; --ink:#e8efed; --muted:#9aa8a5; --line:#26332f;
+  --brand:#3fb3a2; --brand-ink:#06201c; --brand-soft:#1d3531;
+  --good:#56c08b; --warn:#e2b05a; --bad:#ec7a70;
+  --good-soft:#18342a; --warn-soft:#3a2f17; --bad-soft:#3d1f1c; --ex-soft:#2a2340; --ex:#b8a4f0;
+  --shadow:none;
+}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 Manrope,system-ui,sans-serif}
+button{font:inherit;cursor:pointer}
+header{display:flex;align-items:center;gap:16px;padding:14px 20px;border-bottom:1px solid var(--line);background:var(--panel);position:sticky;top:0;z-index:5;flex-wrap:wrap}
+.logo{display:flex;align-items:center;gap:10px;font-weight:800;letter-spacing:-.01em}
+.logo i{width:28px;height:28px;border-radius:8px;background:var(--brand);display:grid;place-items:center;color:var(--brand-ink);font-style:normal;font-size:15px}
+.logo small{font-weight:600;color:var(--muted)}
+nav.tabs{display:flex;gap:4px;margin-left:auto;background:var(--bg);padding:4px;border-radius:10px}
+nav.tabs button{border:0;background:none;padding:7px 14px;border-radius:7px;color:var(--muted);font-weight:700}
+nav.tabs button.on{background:var(--panel);color:var(--ink);box-shadow:var(--shadow)}
+main{max-width:1240px;margin:0 auto;padding:18px 20px 60px}
+.filters{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{border:1px solid var(--line);background:var(--panel);color:var(--ink);padding:6px 12px;border-radius:999px;font-size:13px;font-weight:600}
+.chip.on{background:var(--brand);border-color:var(--brand);color:var(--brand-ink)}
+.chip .n{opacity:.65;margin-left:4px;font-weight:500}
+.sep{width:1px;height:22px;background:var(--line)}
+.grid{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:18px;align-items:start}
+@media (max-width:900px){.grid{grid-template-columns:1fr}}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow)}
+.list{list-style:none;margin:0;padding:6px}
+.row{display:grid;grid-template-columns:34px 1fr auto;gap:12px;align-items:center;padding:10px 12px;border-radius:10px;cursor:pointer;position:relative;transition:background .15s}
+.row:hover{background:var(--bg)}
+.row.sel{background:var(--brand-soft)}
+.row.closed{opacity:.55}
+.rank{font-weight:800;color:var(--muted);text-align:center;font-variant-numeric:tabular-nums}
+.name{font-weight:700;line-height:1.25}
+.meta{font-size:12.5px;color:var(--muted);margin-top:2px;display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.score{font-weight:800;font-size:20px;font-variant-numeric:tabular-nums;min-width:44px;text-align:right}
+.bar{height:4px;border-radius:2px;background:var(--line);margin-top:4px;overflow:hidden}
+.bar b{display:block;height:100%;background:var(--brand)}
+.tag{font-size:11px;font-weight:700;padding:2px 7px;border-radius:999px;background:var(--bg);color:var(--muted);white-space:nowrap}
+.tag.ex{background:var(--ex-soft);color:var(--ex)}
+.tag.new{background:var(--warn-soft);color:var(--warn)}
+.tag.st-has_terminal,.tag.st-signed{background:var(--good-soft);color:var(--good)}
+.tag.st-interested{background:var(--brand-soft);color:var(--brand)}
+.tag.st-not_now{background:var(--bad-soft);color:var(--bad)}
+.delta{position:absolute;right:66px;top:50%;transform:translateY(-50%);font-size:12px;font-weight:800;color:var(--bad);background:var(--bad-soft);padding:2px 7px;border-radius:999px;animation:fade 4s forwards}
+@keyframes fade{0%,70%{opacity:1}100%{opacity:0}}
+.row.moved{animation:flash 1.6s}
+@keyframes flash{0%{background:var(--bad-soft)}100%{background:transparent}}
+.detail{padding:20px;position:sticky;top:78px}
+.detail h2{margin:0 0 4px;font-size:22px;letter-spacing:-.01em}
+.detail .sub{color:var(--muted);font-size:13.5px;margin-bottom:14px}
+.big{display:flex;align-items:baseline;gap:8px;margin:6px 0 12px}
+.big b{font-size:44px;font-weight:800;line-height:1;font-variant-numeric:tabular-nums}
+.big span{color:var(--muted);font-weight:600}
+.reason{background:var(--bg);border-radius:10px;padding:12px 14px;font-weight:600;margin-bottom:16px}
+.parts{display:grid;gap:7px;margin-bottom:18px}
+.part{display:grid;grid-template-columns:110px 1fr 50px;gap:10px;align-items:center;font-size:13px}
+.part .bar{height:8px;margin:0;border-radius:4px}
+.part .v{text-align:right;font-variant-numeric:tabular-nums;color:var(--muted)}
+h3{font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin:18px 0 8px}
+.msg{white-space:pre-wrap;background:var(--bg);border-left:3px solid var(--brand);padding:12px 14px;border-radius:0 10px 10px 0;font-size:14px}
+.btns{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.btn{border:1px solid var(--line);background:var(--panel);color:var(--ink);padding:9px 14px;border-radius:9px;font-weight:700;font-size:13.5px}
+.btn:hover{border-color:var(--brand)}
+.btn.primary{background:var(--brand);color:var(--brand-ink);border-color:var(--brand)}
+.btn.hot{border-color:var(--accent);color:var(--accent)}
+.btn:disabled{opacity:.5;cursor:wait}
+.src{font-size:12.5px;color:var(--muted);margin-top:14px;line-height:1.6}
+.src a{color:var(--brand)}
+.banner{font-size:13px;padding:10px 14px;border-radius:10px;margin-bottom:14px;background:var(--ex-soft);color:var(--ex);font-weight:600}
+.toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%) translateY(120%);background:var(--ink);color:var(--bg);padding:12px 18px;border-radius:12px;font-weight:600;max-width:min(560px,92vw);transition:transform .3s,opacity .3s;z-index:20;font-size:14px;opacity:0;pointer-events:none}
+.toast.show{transform:translateX(-50%) translateY(0);opacity:1}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin-bottom:16px}
+.tile{padding:14px 16px}
+.tile .k{font-size:12px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.06em}
+.tile .v{font-size:28px;font-weight:800;margin-top:4px;font-variant-numeric:tabular-nums}
+.tile.bad .v{color:var(--bad)} .tile.warn .v{color:var(--warn)}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th,td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--line)}
+th{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+td.num{text-align:right;font-variant-numeric:tabular-nums}
+.pill{font-size:12px;font-weight:800;padding:3px 9px;border-radius:999px;white-space:nowrap}
+.pill.At{background:var(--bad-soft);color:var(--bad)} .pill.Watch{background:var(--warn-soft);color:var(--warn)}
+.pill.Healthy{background:var(--good-soft);color:var(--good)} .pill.New{background:var(--brand-soft);color:var(--brand)}
+.tablewrap{overflow-x:auto}
+footer{max-width:1240px;margin:0 auto;padding:0 20px 30px;color:var(--muted);font-size:12.5px;display:flex;gap:12px;justify-content:space-between;flex-wrap:wrap}
+footer button{border:0;background:none;color:var(--muted);text-decoration:underline;padding:0}
+.empty{padding:30px;text-align:center;color:var(--muted)}
+.err{padding:16px;color:var(--bad);font-weight:600}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo"><i>◎</i> Digipos <small>Lead Radar</small></div>
+  <nav class="tabs">
+    <button data-tab="leads" class="on">Leads</button>
+    <button data-tab="health">Merchant health</button>
+  </nav>
+</header>
+
+<main>
+  <section id="leadsView">
+    <div class="filters">
+      <div class="chips" id="emirates"></div>
+      <span class="sep"></span>
+      <div class="chips" id="lanes"></div>
+    </div>
+    <div id="laneBanner"></div>
+    <div class="grid">
+      <div class="card"><ul class="list" id="list"><li class="empty">Loading leads…</li></ul></div>
+      <div class="card detail" id="detail"><div class="empty">Pick a lead to see why it ranks where it does.</div></div>
+    </div>
+  </section>
+
+  <section id="healthView" hidden>
+    <div class="banner">Simulated data: these merchants are made up for the demo. Status rule: Jun→Sep volume down 25% or more = At risk, down 10–25% = Watch.</div>
+    <div class="tiles" id="tiles"></div>
+    <div class="card tablewrap"><table id="healthTable"></table></div>
+  </section>
+</main>
+
+<footer>
+  <span id="source">Leads: real public listings (Google Places, collected 17 Oct 2026) unless marked Example.</span>
+  <button id="reset">Reset demo</button>
+</footer>
+<div class="toast" id="toast"></div>
+
+<script>
+const EMIRATES = ["All","Dubai","Abu Dhabi","Sharjah","Ajman","Umm Al Quwain","Ras Al Khaimah","Fujairah"];
+const LANES = [["established","Established"],["new_opening","New openings"],["all","All"]];
+const PART_LABEL = {newness:"Newness",size:"Size proxy",category:"Category fit",location:"Location",contact:"Contactability"};
+const WEIGHTS = {newness:30,size:25,category:20,location:15,contact:10};
+const OUTCOMES = [["interested","Interested","primary"],["not_now","Not now",""],["has_terminal","Already has a terminal","hot"],["signed","Signed",""]];
+const STATUS_LABEL = {interested:"Interested",not_now:"Not now",has_terminal:"Has terminal",signed:"Signed"};
+
+const state = {emirate:"All", lane:"established", all:[], selected:null, deltas:{}};
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+
+async function api(path, opts){
+  const r = await fetch("/api/" + path, opts);
+  const j = await r.json().catch(() => ({error: "Bad response"}));
+  if(!r.ok) throw new Error(j.error || r.statusText);
+  return j;
+}
+
+function toast(msg){
+  const t = $("#toast"); t.textContent = msg; t.classList.add("show");
+  clearTimeout(t._h); t._h = setTimeout(() => t.classList.remove("show"), 5200);
+}
+
+/* ---------- Leads ---------- */
+async function loadLeads(){
+  const j = await api("leads");
+  state.all = j.leads;
+}
+function visible(){
+  return state.all.filter(l =>
+    (state.emirate === "All" || l.emirate === state.emirate) &&
+    (state.lane === "all" || l.lane === state.lane));
+}
+function renderFilters(){
+  const count = (fn) => state.all.filter(fn).length;
+  $("#emirates").innerHTML = EMIRATES.map(e => {
+    const n = e === "All" ? state.all.length : count(l => l.emirate === e);
+    return `<button class="chip ${state.emirate===e?"on":""}" data-em="${e}">${e}<span class="n">${n}</span></button>`;
+  }).join("");
+  $("#lanes").innerHTML = LANES.map(([k,label]) =>
+    `<button class="chip ${state.lane===k?"on":""}" data-lane="${k}">${label}</button>`).join("");
+  const showEx = state.lane !== "established" && visible().some(l => l.is_example);
+  $("#laneBanner").innerHTML = showEx ? `<div class="banner">Rows marked <b>Example</b> show the format licence data will arrive in. They are not real businesses. Dubai licence data is the only open source confirmed so far; other emirates are not yet covered for new openings.</div>` : "";
+}
+function renderList(animate){
+  const ul = $("#list");
+  const before = {};
+  if(animate) ul.querySelectorAll(".row").forEach(li => before[li.dataset.id] = li.getBoundingClientRect().top);
+  const rows = visible();
+  if(!rows.length){ ul.innerHTML = `<li class="empty">No leads here yet. ${state.emirate !== "All" ? "Add rows for " + esc(state.emirate) + " in the sheet." : ""}</li>`; return; }
+  ul.innerHTML = rows.map((l,i) => {
+    const closed = l.status === "has_terminal" || l.status === "signed";
+    const d = state.deltas[l.id];
+    return `<li class="row ${state.selected===l.id?"sel":""} ${closed?"closed":""} ${d?"moved":""}" data-id="${l.id}">
+      <div class="rank">${i+1}</div>
+      <div>
+        <div class="name">${esc(l.business_name)}</div>
+        <div class="meta">${esc(l.category)} · ${esc(l.area)}, ${esc(l.emirate)}
+          ${l.is_example?'<span class="tag ex">Example</span>':""}
+          ${l.lane==="new_opening"&&!l.is_example?'<span class="tag new">New? unverified</span>':""}
+          ${l.status!=="open"?`<span class="tag st-${l.status}">${STATUS_LABEL[l.status]}</span>`:""}</div>
+      </div>
+      <div><div class="score">${l.score}</div><div class="bar"><b style="width:${l.score}%"></b></div></div>
+      ${d?`<span class="delta">${d.from} → ${d.to}</span>`:""}
+    </li>`;
+  }).join("");
+  if(animate){ // FLIP: slide rows from their old position to the new one
+    ul.querySelectorAll(".row").forEach(li => {
+      const old = before[li.dataset.id]; if(old === undefined) return;
+      const dy = old - li.getBoundingClientRect().top; if(!dy) return;
+      li.animate([{transform:`translateY(${dy}px)`},{transform:"translateY(0)"}],{duration:700,easing:"cubic-bezier(.2,.8,.2,1)"});
+    });
+  }
+}
+function renderDetail(){
+  const l = visible().find(x => x.id === state.selected);
+  const box = $("#detail");
+  if(!l){ box.innerHTML = `<div class="empty">Pick a lead to see why it ranks where it does.</div>`; return; }
+  const parts = l.score_parts || {};
+  const rank = visible().findIndex(x => x.id === l.id) + 1;
+  const phone = l.has_phone ? "Phone listed" : "No phone listed";
+  const wa = "https://wa.me/?text=" + encodeURIComponent(l.draft_message || "");
+  box.innerHTML = `
+    ${l.is_example?'<div class="banner">Example format only, not a real business.</div>':""}
+    <h2>${esc(l.business_name)}</h2>
+    <div class="sub">${esc(l.category)} · ${esc(l.area)}, ${esc(l.emirate)} · ${esc(l.lane_label||"")}</div>
+    <div class="big"><b>${l.score}</b><span>/ 100 · #${rank} in this view</span></div>
+    <div class="reason">${esc(l.reason)}</div>
+    <div class="parts">${Object.keys(WEIGHTS).map(k => `
+      <div class="part"><span>${PART_LABEL[k]}</span>
+        <div class="bar"><b style="width:${(parts[k]||0)/WEIGHTS[k]*100}%"></b></div>
+        <span class="v">${parts[k]||0}/${WEIGHTS[k]}</span></div>`).join("")}
+      ${parts.signal?`<div class="part"><span>Review signal</span><div></div><span class="v">${parts.signal>0?"+":""}${parts.signal}</span></div>`:""}
+    </div>
+    <h3>Log visit outcome</h3>
+    <div class="btns">${OUTCOMES.map(([k,label,cls]) =>
+      `<button class="btn ${cls}" data-outcome="${k}" ${l.status===k?"disabled":""}>${label}</button>`).join("")}</div>
+    <h3>WhatsApp draft (pre-written)</h3>
+    <div class="msg">${esc(l.draft_message)}</div>
+    <div class="btns">
+      <button class="btn" id="copyMsg">Copy</button>
+      <a class="btn" href="${wa}" target="_blank" rel="noopener" style="text-decoration:none">Open in WhatsApp</a>
+    </div>
+    <div class="src">
+      ${l.rating?`Rating ${l.rating} from ${Number(l.review_count||0).toLocaleString()} reviews · `:""}${phone}
+      ${l.chain_check?` · ${esc(l.chain_check)}`:""}<br>
+      ${l.maps_link?`<a href="${esc(l.maps_link)}" target="_blank" rel="noopener">Google Maps listing</a>`:""}
+      ${l.website?` · <a href="${esc(l.website)}" target="_blank" rel="noopener">Website</a>`:""}
+      ${l.card_signal_note?`<br>Card signal: ${esc(l.card_signal_note)}`:""}
+      ${l.date_collected?`<br>Collected ${esc(l.date_collected)}`:""}
+    </div>`;
+  $("#copyMsg").onclick = () => navigator.clipboard?.writeText(l.draft_message).then(() => toast("Draft copied"));
+}
+
+async function logOutcome(outcome){
+  const id = state.selected;
+  document.querySelectorAll("[data-outcome]").forEach(b => b.disabled = true);
+  try{
+    const res = await api("outcome", {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({lead_id:id, outcome})});
+    state.deltas = {};
+    res.moved.forEach(m => state.deltas[m.id] = m);
+    await loadLeads();
+    renderFilters(); renderList(true); renderDetail();
+    const label = OUTCOMES.find(o => o[0] === outcome)[1];
+    toast(res.moved.length
+      ? `Logged “${label}”. ${res.moved.length} nearby lead${res.moved.length>1?"s":""} in ${res.cluster} moved down: that area now has more terminal coverage.`
+      : `Logged “${label}”.`);
+    setTimeout(() => { state.deltas = {}; }, 4000);
+  }catch(e){ toast("Could not save: " + e.message); renderDetail(); }
+}
+
+/* ---------- Health ---------- */
+function spark(m){
+  const v = ["vol_apr","vol_may","vol_jun","vol_jul","vol_aug","vol_sep"].map(k => m[k]).filter(x => x != null);
+  if(v.length < 2) return "";
+  const mn = Math.min(...v), mx = Math.max(...v), w = 84, h = 22;
+  const pts = v.map((x,i) => `${(i/(v.length-1))*w},${h - ((x-mn)/((mx-mn)||1))*h}`).join(" ");
+  const color = v[v.length-1] < v[0] ? "var(--bad)" : "var(--good)";
+  return `<svg width="${w}" height="${h+2}" viewBox="0 -1 ${w} ${h+2}"><polyline fill="none" stroke="${color}" stroke-width="2" points="${pts}"/></svg>`;
+}
+async function loadHealth(){
+  const j = await api("health"), s = j.summary;
+  const aed = n => "AED " + Number(n).toLocaleString();
+  $("#tiles").innerHTML = `
+    <div class="card tile"><div class="k">Merchants tracked</div><div class="v">${s.tracked}</div></div>
+    <div class="card tile bad"><div class="k">At risk</div><div class="v">${s.at_risk}</div></div>
+    <div class="card tile warn"><div class="k">Watch</div><div class="v">${s.watch}</div></div>
+    <div class="card tile"><div class="k">New (ramp-up)</div><div class="v">${s.new}</div></div>
+    <div class="card tile bad"><div class="k">Sep volume at risk</div><div class="v">${aed(s.volume_at_risk_sep)}</div></div>`;
+  $("#healthTable").innerHTML = `<thead><tr><th>Merchant</th><th>Area</th><th>Apr–Sep</th><th class="num">Sep volume</th><th class="num">Jun→Sep</th><th>Status</th><th>Next action</th></tr></thead><tbody>` +
+    j.merchants.map(m => `<tr>
+      <td><b>${esc(m.name)}</b><div class="meta">${esc(m.category)} · ${m.terminals} terminal${m.terminals>1?"s":""}</div></td>
+      <td>${esc(m.area)}, ${esc(m.emirate)}</td>
+      <td>${spark(m)}</td>
+      <td class="num">${aed(m.vol_sep||0)}</td>
+      <td class="num">${m.change_jun_to_sep==null?"–":(Math.round(m.change_jun_to_sep*100)>0?"+":"")+Math.round(m.change_jun_to_sep*100).toString().replace("-0","0")+"%"}</td>
+      <td><span class="pill ${m.status.split(" ")[0]}">${m.status}</span></td>
+      <td>${esc(m.suggested_action)}</td></tr>`).join("") + "</tbody>";
+}
+
+/* ---------- Wiring ---------- */
+document.addEventListener("click", e => {
+  const t = e.target.closest("button, .row"); if(!t) return;
+  if(t.dataset.em){ state.emirate = t.dataset.em; state.deltas = {}; renderFilters(); renderList(); renderDetail(); }
+  else if(t.dataset.lane){ state.lane = t.dataset.lane; state.deltas = {}; renderFilters(); renderList(); renderDetail(); }
+  else if(t.classList.contains("row")){ state.selected = t.dataset.id; renderList(); renderDetail();
+    if(innerWidth < 900) $("#detail").scrollIntoView({behavior:"smooth"}); }
+  else if(t.dataset.outcome){ logOutcome(t.dataset.outcome); }
+  else if(t.dataset.tab){
+    document.querySelectorAll("nav.tabs button").forEach(b => b.classList.toggle("on", b === t));
+    $("#leadsView").hidden = t.dataset.tab !== "leads";
+    $("#healthView").hidden = t.dataset.tab !== "health";
+    if(t.dataset.tab === "health") loadHealth().catch(err => $("#tiles").innerHTML = `<div class="err">${esc(err.message)}</div>`);
+  }
+});
+$("#reset").onclick = async () => {
+  if(!confirm("Clear all logged visits and restore the original ranking?")) return;
+  await api("reset", {method:"POST"}); state.deltas = {}; await loadLeads();
+  renderFilters(); renderList(); renderDetail(); toast("Demo reset");
+};
+
+loadLeads().then(() => { renderFilters(); renderList(); })
+  .catch(e => $("#list").innerHTML = `<li class="err">Could not load leads: ${esc(e.message)}</li>`);
+</script>
+</body>
+</html>

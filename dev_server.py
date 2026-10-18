@@ -39,7 +39,8 @@ class Handler(SimpleHTTPRequestHandler):
         if method == "POST":
             n = int(self.headers.get("Content-Length") or 0)
             body = json.loads(self.rfile.read(n) or b"{}") if n else {}
-        status, payload = core.dispatch(method, parsed.path, query, body)
+        status, payload = core.dispatch(method, parsed.path, query, body,
+                                        {"X-Demo-Key": self.headers.get("X-Demo-Key")})
         out = json.dumps(payload, default=str).encode()
         self.send_response(status)
         self.send_header("Content-Type", "application/json")

@@ -1,432 +1,646 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Digipos Lead Radar</title>
 <script>try{var t=localStorage.getItem("theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-:root{
-  --bg:#f4f2ee; --panel:#ffffff; --ink:#15211f; --muted:#5f6b68; --line:#e3dfd8;
-  --brand:#0f5b52; --brand-ink:#ffffff; --brand-soft:#e2efec;
-  --accent:#d9832b; --good:#1f7a4d; --warn:#b7791f; --bad:#b4372f;
-  --good-soft:#e3f2ea; --warn-soft:#fbf0dc; --bad-soft:#f8e4e2; --ex-soft:#efe9fb; --ex:#5b3fa8;
-  --shadow:0 1px 2px rgba(20,30,28,.06),0 6px 24px rgba(20,30,28,.06);
+/* Digipos brand: royal #052D8B · indigo #0A0458 · logo blue #0062C1 · cyan #2CB8EA · red #E02B20 */
+:root,:root[data-theme="dark"]{
+  --bg:#03051c; --panel:#060a2a; --head:#0a1140; --line:#151d55; --line-2:#222c78;
+  --ink:#eef1ff; --muted:#a9b1e0; --dim:#7880b8;
+  --accent:#2cb8ea; --accent-ink:#03122a; --brand:#0062c1; --sel:#0c1856; --hover:#09103a;
+  --hot:#e02b20; --hot-ink:#ff6d63; --up:#35d07f; --warn:#f2b33d; --ex:#b9a6ff;
+  --bar-bg:#121a4d; color-scheme:dark;
 }
-@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
-  --bg:#0f1514; --panel:#172120; --ink:#e8efed; --muted:#9aa8a5; --line:#26332f;
-  --brand:#3fb3a2; --brand-ink:#06201c; --brand-soft:#1d3531;
-  --good:#56c08b; --warn:#e2b05a; --bad:#ec7a70;
-  --good-soft:#18342a; --warn-soft:#3a2f17; --bad-soft:#3d1f1c; --ex-soft:#2a2340; --ex:#b8a4f0;
-  --shadow:none;
-}}
-:root[data-theme="dark"]{
-  --bg:#0f1514; --panel:#172120; --ink:#e8efed; --muted:#9aa8a5; --line:#26332f;
-  --brand:#3fb3a2; --brand-ink:#06201c; --brand-soft:#1d3531;
-  --good:#56c08b; --warn:#e2b05a; --bad:#ec7a70;
-  --good-soft:#18342a; --warn-soft:#3a2f17; --bad-soft:#3d1f1c; --ex-soft:#2a2340; --ex:#b8a4f0;
-  --shadow:none;
+:root[data-theme="light"]{
+  --bg:#eef1f8; --panel:#ffffff; --head:#f4f6fc; --line:#dfe4f2; --line-2:#c7cfe8;
+  --ink:#0a0e3a; --muted:#3f4778; --dim:#6b7299;
+  --accent:#0062c1; --accent-ink:#ffffff; --brand:#052d8b; --sel:#e2ebfb; --hover:#f3f6fd;
+  --hot:#e02b20; --hot-ink:#c41f16; --up:#11804a; --warn:#a86400; --ex:#5b3fa8;
+  --bar-bg:#e6eaf5; color-scheme:light;
 }
-:root{color-scheme:light}
-:root[data-theme="dark"]{color-scheme:dark}
 *{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 Manrope,system-ui,sans-serif}
-button{font:inherit;cursor:pointer}
-header{display:flex;align-items:center;gap:12px;padding:12px 24px;border-bottom:1px solid var(--line);background:var(--panel);position:sticky;top:0;z-index:5;flex-wrap:wrap}
-.logo{display:flex;align-items:center;gap:10px;font-weight:800;letter-spacing:-.01em}
-.logo i{width:28px;height:28px;border-radius:8px;background:var(--brand);display:grid;place-items:center;color:var(--brand-ink);font-style:normal;font-size:15px}
-.logo small{font-weight:600;color:var(--muted)}
-nav.tabs{display:flex;gap:4px;margin-left:auto;background:var(--bg);padding:4px;border-radius:10px}
-nav.tabs button{border:0;background:none;padding:7px 14px;border-radius:7px;color:var(--muted);font-weight:700}
-nav.tabs button.on{background:var(--panel);color:var(--ink);box-shadow:var(--shadow)}
-main{padding:16px 24px 40px}
-.filters{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
-.chips{display:flex;gap:6px;flex-wrap:wrap}
-.chip{border:1px solid var(--line);background:var(--panel);color:var(--ink);padding:6px 12px;border-radius:999px;font-size:13px;font-weight:600}
-.chip.on{background:var(--brand);border-color:var(--brand);color:var(--brand-ink)}
-.chip .n{opacity:.65;margin-left:4px;font-weight:500}
-.sep{width:1px;height:22px;background:var(--line)}
-.grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(400px,480px);gap:18px;align-items:start}
-.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow)}
-.list{list-style:none;margin:0;padding:6px}
-.row{display:grid;grid-template-columns:34px minmax(0,1fr) auto;gap:12px;align-items:center;padding:10px 12px;border-radius:10px;cursor:pointer;position:relative;transition:background .15s}
-.row:hover{background:var(--bg)}
-.row.sel{background:var(--brand-soft)}
-.row.closed{opacity:.55}
-.rank{font-weight:800;color:var(--muted);text-align:center;font-variant-numeric:tabular-nums}
-.name{font-weight:700;line-height:1.25}
-.meta{font-size:12.5px;color:var(--muted);margin-top:2px;display:flex;gap:6px;flex-wrap:wrap;align-items:center}
-.score{font-weight:800;font-size:20px;font-variant-numeric:tabular-nums;min-width:44px;text-align:right}
-.bar{height:4px;border-radius:2px;background:var(--line);margin-top:4px;overflow:hidden}
-.bar b{display:block;height:100%;background:var(--brand)}
-.tag{font-size:11px;font-weight:700;padding:2px 7px;border-radius:999px;background:var(--bg);color:var(--muted);white-space:nowrap}
-.tag.ex{background:var(--ex-soft);color:var(--ex)}
-.tag.new{background:var(--warn-soft);color:var(--warn)}
-.tag.st-has_terminal,.tag.st-signed{background:var(--good-soft);color:var(--good)}
-.tag.st-interested{background:var(--brand-soft);color:var(--brand)}
-.tag.st-not_now{background:var(--bad-soft);color:var(--bad)}
-.delta{position:absolute;right:70px;top:50%;transform:translateY(-50%);font-size:12px;font-weight:800;color:var(--bad);background:var(--bad-soft);padding:2px 7px;border-radius:999px;animation:fade 4s forwards}
-@keyframes fade{0%,70%{opacity:1}100%{opacity:0}}
-.row.moved{animation:flash 1.6s}
-@keyframes flash{0%{background:var(--bad-soft)}100%{background:transparent}}
-.detail{padding:20px;position:sticky;top:76px;max-height:calc(100vh - 92px);overflow:auto}
-.why,.stat{display:none;font-size:13px;color:var(--muted)}
-.stat{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
-.stat b{color:var(--ink);font-weight:700}
-@media (min-width:1200px){
-  .row{grid-template-columns:34px minmax(220px,1.1fr) minmax(0,1.6fr) 110px 60px}
-  .why{display:block;overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
-  .stat{display:block}
-}
-.icon-btn{border:1px solid transparent;background:none;color:var(--muted);width:34px;height:34px;border-radius:9px;display:grid;place-items:center;padding:0}
-.icon-btn:hover{color:var(--ink);border-color:var(--line)}
-.icon-btn svg{width:17px;height:17px}
-.close{display:none}
-.detail h2{margin:0 0 4px;font-size:22px;letter-spacing:-.01em}
-.detail .sub{color:var(--muted);font-size:13.5px;margin-bottom:14px}
-.big{display:flex;align-items:baseline;gap:8px;margin:6px 0 12px}
-.big b{font-size:44px;font-weight:800;line-height:1;font-variant-numeric:tabular-nums}
-.big span{color:var(--muted);font-weight:600}
-.reason{background:var(--bg);border-radius:10px;padding:12px 14px;font-weight:600;margin-bottom:16px}
-.parts{display:grid;gap:7px;margin-bottom:18px}
-.part{display:grid;grid-template-columns:110px 1fr 50px;gap:10px;align-items:center;font-size:13px}
-.part .bar{height:8px;margin:0;border-radius:4px}
-.part .v{text-align:right;font-variant-numeric:tabular-nums;color:var(--muted)}
-h3{font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin:18px 0 8px}
-.msg{white-space:pre-wrap;background:var(--bg);border-left:3px solid var(--brand);padding:12px 14px;border-radius:0 10px 10px 0;font-size:14px}
-.btns{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
-.btn{border:1px solid var(--line);background:var(--panel);color:var(--ink);padding:9px 14px;border-radius:9px;font-weight:700;font-size:13.5px}
-.btn:hover{border-color:var(--brand)}
-.btns.out{display:grid;grid-template-columns:1fr 1fr}
-.btn.primary{background:var(--brand);color:var(--brand-ink);border-color:var(--brand)}
-.btn.hot{border-color:var(--accent);color:var(--accent)}
-.btn:disabled{opacity:.5;cursor:wait}
-.src{font-size:12.5px;color:var(--muted);margin-top:14px;line-height:1.6}
-.src a{color:var(--brand)}
-.banner{font-size:13px;padding:10px 14px;border-radius:10px;margin-bottom:14px;background:var(--ex-soft);color:var(--ex);font-weight:600}
-.toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%) translateY(120%);background:var(--ink);color:var(--bg);padding:12px 18px;border-radius:12px;font-weight:600;max-width:min(560px,92vw);transition:transform .3s,opacity .3s;z-index:20;font-size:14px;opacity:0;pointer-events:none}
-.toast.show{transform:translateX(-50%) translateY(0);opacity:1}
-.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin-bottom:16px}
-.tile{padding:14px 16px}
-.tile .k{font-size:12px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.06em}
-.tile .v{font-size:28px;font-weight:800;margin-top:4px;font-variant-numeric:tabular-nums}
-.tile.bad .v{color:var(--bad)} .tile.warn .v{color:var(--warn)}
-table{width:100%;border-collapse:collapse;font-size:14px}
-th,td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--line)}
-th{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
-td.num{text-align:right;font-variant-numeric:tabular-nums}
-.pill{font-size:12px;font-weight:800;padding:3px 9px;border-radius:999px;white-space:nowrap}
-.pill.At{background:var(--bad-soft);color:var(--bad)} .pill.Watch{background:var(--warn-soft);color:var(--warn)}
-.pill.Healthy{background:var(--good-soft);color:var(--good)} .pill.New{background:var(--brand-soft);color:var(--brand)}
-.tablewrap{overflow-x:auto}
-footer{padding:0 24px 28px;color:var(--muted);font-size:12.5px;display:flex;gap:12px;justify-content:space-between;flex-wrap:wrap}
-footer button{border:0;background:none;color:var(--muted);text-decoration:underline;padding:0}
-.empty{padding:30px;text-align:center;color:var(--muted)}
-.err{padding:16px;color:var(--bad);font-weight:600}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:13px/1.4 "IBM Plex Sans",system-ui,sans-serif;display:flex;flex-direction:column}
+button,input,table,.ph,.tick,.status{font-family:"IBM Plex Mono",ui-monospace,Menlo,monospace}
+button{font-size:inherit;cursor:pointer;color:inherit}
+a{color:var(--accent)}
 
-/* ---------- Tablet & phone ---------- */
-@media (max-width:900px){
-  .grid{grid-template-columns:1fr}
-  .detail{position:fixed;inset:0;z-index:30;border-radius:0;border:0;max-height:none;padding:16px 16px calc(24px + env(safe-area-inset-bottom));
-    transform:translateY(100%);transition:transform .28s cubic-bezier(.2,.8,.2,1);visibility:hidden}
-  .detail.open{transform:none;visibility:visible}
-  .close{display:flex;align-items:center;gap:6px;border:0;background:none;color:var(--muted);font-weight:700;padding:4px 0 12px;font-size:14px}
+/* ---- top bar (brand gradient) ---- */
+.top{display:flex;align-items:center;gap:14px;height:44px;padding:0 14px;background:linear-gradient(90deg,#0a0458 0%,#052d8b 70%,#0062c1 100%);color:#fff;flex:none}
+.brand{display:flex;align-items:baseline;gap:10px;white-space:nowrap}
+.brand b{font:700 17px/1 "IBM Plex Sans",sans-serif;letter-spacing:.02em}
+.brand b span{color:#2cb8ea}
+.brand small{font:500 11px "IBM Plex Mono",monospace;letter-spacing:.14em;opacity:.75}
+.tabs{display:flex;gap:2px;margin-left:12px}
+.tabs button{border:0;background:transparent;color:rgba(255,255,255,.7);font:600 12px "IBM Plex Mono",monospace;letter-spacing:.06em;padding:6px 10px;border-bottom:2px solid transparent}
+.tabs button kbd{opacity:.6;margin-right:6px;font:inherit}
+.tabs button.on{color:#fff;border-bottom-color:#2cb8ea}
+.top .sp{flex:1}
+.clock{font:500 12px "IBM Plex Mono",monospace;opacity:.85;white-space:nowrap}
+.icon-btn{border:1px solid rgba(255,255,255,.25);background:transparent;color:#fff;width:28px;height:28px;display:grid;place-items:center;padding:0;opacity:.8}
+.icon-btn:hover{opacity:1}
+.icon-btn svg{width:15px;height:15px}
+
+/* ---- ticker ---- */
+.ticker{display:flex;overflow-x:auto;scrollbar-width:none;background:var(--head);border-bottom:1px solid var(--line);flex:none}
+.ticker::-webkit-scrollbar{display:none}
+.tick{display:flex;gap:7px;align-items:baseline;padding:7px 14px;border-right:1px solid var(--line);white-space:nowrap;font-size:12px}
+.tick .k{color:var(--muted);font-size:11px;letter-spacing:.06em}
+.tick .v{font-weight:600}
+.tick .v.hot{color:var(--hot-ink)} .tick .v.acc{color:var(--accent)} .tick .v.warn{color:var(--warn)}
+
+/* ---- command bar ---- */
+.cmd{display:flex;gap:16px;align-items:center;padding:8px 14px;border-bottom:1px solid var(--line);flex:none;min-width:0}
+.seg{display:flex;align-items:center;min-width:0}
+.seg > .k{font:600 11px "IBM Plex Mono",monospace;color:var(--muted);letter-spacing:.08em;margin-right:8px}
+.seg .opts{display:flex;border:1px solid var(--line-2);overflow-x:auto;scrollbar-width:none;min-width:0}
+.seg .opts::-webkit-scrollbar{display:none}
+.seg button{border:0;border-right:1px solid var(--line-2);background:transparent;padding:5px 10px;font-size:12px;font-weight:600;color:var(--muted);white-space:nowrap;flex:none}
+.seg button:last-child{border-right:0}
+.seg button .n{color:var(--dim);margin-left:5px;font-weight:500}
+.seg button.on{background:var(--accent);color:var(--accent-ink)}
+.seg button.on .n{color:inherit;opacity:.7}
+.search{margin-left:auto;display:flex;align-items:center;border:1px solid var(--line-2);padding:0 8px;min-width:220px}
+.search span{color:var(--dim);font:600 12px "IBM Plex Mono",monospace}
+.search input{border:0;background:transparent;color:var(--ink);font-size:12px;padding:6px;outline:none;width:100%}
+
+/* ---- panels ---- */
+main{flex:1;min-height:0;display:flex;flex-direction:column}
+.view{flex:1;min-height:0;display:flex;flex-direction:column}
+.view[hidden]{display:none}
+.desk{flex:1;min-height:0;display:grid;gap:1px;background:var(--line);
+  grid-template-columns:minmax(0,1.15fr) minmax(0,1fr) minmax(380px,440px);
+  grid-template-rows:minmax(0,1fr) minmax(170px,30%);
+  grid-template-areas:"table table detail" "cov log detail"}
+.panel{background:var(--panel);display:flex;flex-direction:column;min-height:0;min-width:0}
+.p-table{grid-area:table}.p-detail{grid-area:detail}.p-cov{grid-area:cov}.p-log{grid-area:log}
+.ph{display:flex;align-items:center;gap:10px;height:30px;padding:0 12px;background:var(--head);border-bottom:1px solid var(--line);font-size:11px;font-weight:600;letter-spacing:.08em;color:var(--muted);flex:none;white-space:nowrap}
+.ph .code{background:var(--accent);color:var(--accent-ink);padding:1px 6px;font-weight:700;letter-spacing:.04em}
+.ph .r{margin-left:auto;font-weight:500;color:var(--dim);overflow:hidden;text-overflow:ellipsis}
+.ph .r .ex{color:var(--ex)}
+.scroll{flex:1;min-height:0;overflow:auto}
+
+/* ---- tables ---- */
+table{width:100%;border-collapse:collapse;font-size:12.5px}
+thead th{position:sticky;top:0;z-index:1;background:var(--panel);color:var(--dim);font-weight:600;font-size:10.5px;letter-spacing:.08em;text-align:right;padding:7px 8px;border-bottom:1px solid var(--line-2);white-space:nowrap;user-select:none}
+thead th.l{text-align:left}
+thead th[data-sort]{cursor:pointer}
+thead th[data-sort]:hover{color:var(--ink)}
+thead th.sorted{color:var(--accent)}
+tbody td{padding:6px 8px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
+tbody td.l{text-align:left}
+#leadTable tbody tr{cursor:pointer}
+#leadTable tbody tr:hover{background:var(--hover)}
+#leadTable tbody tr.sel{background:var(--sel);box-shadow:inset 3px 0 0 var(--accent)}
+#leadTable tbody tr.closed td{opacity:.45}
+tr.flash{animation:flash 2.4s}
+@keyframes flash{0%{background:rgba(224,43,32,.30)}100%{background:transparent}}
+.rk{color:var(--dim);width:34px}
+.biz{font-family:"IBM Plex Sans",sans-serif;max-width:0;width:auto}
+.biz .nm{font-weight:600;font-size:13.5px;overflow:hidden;text-overflow:ellipsis}
+.biz .sb{color:var(--muted);font-size:12px;overflow:hidden;text-overflow:ellipsis}
+.tg{display:inline-block;font:600 9.5px "IBM Plex Mono",monospace;letter-spacing:.06em;padding:1px 4px;margin-left:6px;vertical-align:1px;border:1px solid currentColor}
+.tg.ex{color:var(--ex)} .tg.nw{color:var(--warn)} .tg.st{color:var(--up)} .tg.no{color:var(--hot-ink)} .tg.in{color:var(--accent)}
+.cp{width:58px}
+.nw-col{width:62px}
+.rv{width:72px}
+.cp i{display:block;height:2px;background:var(--bar-bg);margin-top:3px}
+.cp i b{display:block;height:100%;background:var(--accent)}
+.sc{font-weight:700;font-size:14px;width:54px}
+.dl{width:52px;font-weight:600}
+.dn{color:var(--hot-ink)} .up{color:var(--up)} .mut{color:var(--dim)}
+
+/* ---- detail ---- */
+.dt{padding:14px 16px 20px}
+.dt h2{margin:0;font-size:19px;font-weight:700;letter-spacing:-.01em}
+.dt .sub{font:500 11px "IBM Plex Mono",monospace;color:var(--muted);letter-spacing:.04em;margin-top:3px;text-transform:uppercase}
+.exnote{font:600 11px "IBM Plex Mono",monospace;color:var(--ex);border:1px solid var(--ex);padding:5px 8px;margin-bottom:10px}
+.scoreline{display:flex;align-items:baseline;gap:10px;margin:12px 0 10px;flex-wrap:wrap}
+.scoreline .big{font:700 46px/1 "IBM Plex Mono",monospace;color:var(--accent)}
+.scoreline .of{font:500 12px "IBM Plex Mono",monospace;color:var(--muted)}
+.scoreline .chg{font:700 12px "IBM Plex Mono",monospace;padding:2px 6px;border:1px solid currentColor}
+.reason{border-left:3px solid var(--accent);background:var(--head);padding:9px 11px;font-size:13px;font-weight:500;margin-bottom:12px}
+.sect{font:600 10.5px "IBM Plex Mono",monospace;letter-spacing:.1em;color:var(--dim);margin:16px 0 7px;display:flex;align-items:center;gap:8px}
+.sect::after{content:"";flex:1;height:1px;background:var(--line)}
+.comp{display:grid;grid-template-columns:104px 1fr 48px;gap:10px;align-items:center;font:500 11.5px "IBM Plex Mono",monospace;margin-bottom:6px}
+.comp .lb{color:var(--muted)}
+.comp .br{height:6px;background:var(--bar-bg)}
+.comp .br b{display:block;height:100%;background:var(--accent)}
+.comp .vv{text-align:right}
+.acts{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.btn{display:flex;align-items:center;justify-content:center;gap:8px;border:1px solid var(--line-2);background:transparent;color:var(--ink);padding:8px 10px;font:600 11.5px "IBM Plex Mono",monospace;letter-spacing:.05em;text-decoration:none;text-align:center}
+.btn:hover{border-color:var(--accent)}
+.btn kbd{font:inherit;color:var(--dim);font-weight:500}
+.btn.pri{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn.pri kbd{color:inherit;opacity:.65}
+.btn.hot{border-color:var(--hot);color:var(--hot-ink)}
+.btn.hot:hover{background:var(--hot);color:#fff}
+.btn:disabled{opacity:.4;cursor:default}
+.btn.on{outline:2px solid var(--accent);outline-offset:-2px}
+.undo{margin-top:6px;width:100%}
+.msg{background:var(--head);border:1px solid var(--line);padding:10px 12px;font-size:13px;white-space:pre-wrap}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:6px}
+.kv{display:grid;grid-template-columns:110px 1fr;gap:4px 10px;font:500 11.5px "IBM Plex Mono",monospace;margin:0}
+.kv dt{color:var(--dim)} .kv dd{margin:0;word-break:break-word}
+.empty{padding:28px 16px;color:var(--dim);font:500 12px "IBM Plex Mono",monospace;text-align:center}
+.close{display:none}
+
+/* ---- coverage + log ---- */
+.covbar{display:inline-block;width:70px;height:6px;background:var(--bar-bg);vertical-align:middle}
+.covbar b{display:block;height:100%;background:var(--hot)}
+.log{font:500 11.5px "IBM Plex Mono",monospace}
+.log > div{display:grid;grid-template-columns:64px 104px minmax(0,1fr);gap:10px;padding:5px 12px;border-bottom:1px solid var(--line)}
+.log > div.new{animation:flash 2.4s}
+.log .t{color:var(--dim)} .log .o{font-weight:700}
+.log .x{color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.o.has_terminal{color:var(--hot-ink)} .o.signed{color:var(--up)} .o.interested{color:var(--accent)} .o.not_now{color:var(--warn)}
+
+/* ---- health ---- */
+.kpis{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:1px;background:var(--line);border-bottom:1px solid var(--line);flex:none}
+.kpi{background:var(--panel);padding:12px 14px}
+.kpi .k{font:600 10.5px "IBM Plex Mono",monospace;letter-spacing:.1em;color:var(--dim)}
+.kpi .v{font:700 26px/1.2 "IBM Plex Mono",monospace;margin-top:4px}
+.kpi .v.hot{color:var(--hot-ink)} .kpi .v.warn{color:var(--warn)} .kpi .v.acc{color:var(--accent)}
+.hv{flex:1;min-height:0}
+.pill{font:700 10.5px "IBM Plex Mono",monospace;letter-spacing:.06em;padding:2px 6px;border:1px solid currentColor}
+.pill.At{color:var(--hot-ink)} .pill.Watch{color:var(--warn)} .pill.Healthy{color:var(--up)} .pill.New{color:var(--accent)}
+
+/* ---- status bar ---- */
+.status{display:flex;gap:16px;align-items:center;height:26px;padding:0 14px;background:var(--head);border-top:1px solid var(--line);font-size:11px;color:var(--muted);flex:none;white-space:nowrap;overflow:hidden}
+.status .dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--up);margin-right:6px}
+.status .dot.off{background:var(--warn)}
+.status .keys{margin-left:auto;color:var(--dim)}
+.status button{border:0;background:none;color:var(--muted);text-decoration:underline;padding:0;font-size:11px}
+
+.toast{position:fixed;right:16px;bottom:38px;max-width:min(460px,calc(100vw - 32px));background:var(--panel);border:1px solid var(--accent);border-left:4px solid var(--accent);color:var(--ink);padding:10px 14px;font:500 12px/1.45 "IBM Plex Mono",monospace;z-index:40;opacity:0;transform:translateY(8px);transition:.25s;pointer-events:none}
+.toast.show{opacity:1;transform:none}
+
+/* ---- tablet / phone ---- */
+@media (max-width:1100px){
+  html,body{height:auto}
+  body{display:block}
+  .desk{display:flex;flex-direction:column;gap:0;background:none}
+  .panel{border-bottom:1px solid var(--line)}
+  .scroll{overflow:visible}
+  .p-cov .scroll,.p-log .scroll{max-height:300px;overflow:auto}
+  .p-detail{position:fixed;inset:0;z-index:30;transform:translateY(100%);transition:transform .28s cubic-bezier(.2,.8,.2,1);visibility:hidden;border:0}
+  .p-detail.open{transform:none;visibility:visible}
+  .p-detail .scroll{overflow:auto;padding-bottom:env(safe-area-inset-bottom)}
+  .close{display:block;border:0;background:none;color:var(--accent);font:600 12px "IBM Plex Mono",monospace;padding:0;margin-left:auto}
   body.sheet{overflow:hidden}
+  .hide-md{display:none}
+  .kpis{grid-template-columns:repeat(3,minmax(0,1fr))}
+  thead th{top:0}
 }
 @media (max-width:640px){
-  header{padding:10px 14px;gap:8px}
-  .logo small{display:none}
-  nav.tabs button{padding:6px 10px;font-size:13.5px}
-  main{padding:12px 0 28px}
-  .filters{flex-direction:column;align-items:stretch;gap:8px}
-  .filters .sep{display:none}
-  .filters,.chips{min-width:0;max-width:100vw}
-  .chips{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;padding:0 14px;-webkit-overflow-scrolling:touch}
-  .chips::-webkit-scrollbar{display:none}
-  .chip{flex:none;padding:7px 12px}
-  #laneBanner,.banner{margin-left:14px;margin-right:14px}
-  .grid > .card:first-child{border-radius:0;border-left:0;border-right:0}
-  .row{padding:12px 10px;gap:10px;grid-template-columns:26px minmax(0,1fr) auto}
-  .delta{right:60px}
-  .detail h2{font-size:20px}
-  .big b{font-size:38px}
-  .part{grid-template-columns:96px 1fr 44px}
-  .btns{display:grid;grid-template-columns:1fr 1fr}
-  .btn{padding:12px;text-align:center}
-  #healthView{padding:0 14px}
-  #healthView .banner{margin-left:0;margin-right:0}
-  .tiles{grid-template-columns:1fr 1fr;gap:8px}
-  .tiles .tile:last-child{grid-column:1/-1}
-  .tile .v{font-size:24px}
-  /* health table -> stacked cards */
+  .top{gap:8px;padding:0 10px}
+  .brand small,.clock{display:none}
+  .tabs{margin-left:auto}
+  .tabs button{padding:6px 7px}
+  .tabs button kbd{display:none}
+  .cmd{flex-wrap:wrap;gap:8px;padding:8px 10px}
+  .seg{width:100%}
+  .seg > .k{width:58px;flex:none}
+  .search{margin-left:0;width:100%;min-width:0}
+  .hide-sm{display:none}
+  .biz{width:auto}
+  .kpis{grid-template-columns:1fr 1fr}
+  .kpis .kpi:last-child{grid-column:1/-1}
+  .status .keys{display:none}
+  .status{flex-wrap:wrap;height:auto;padding:8px 10px calc(8px + env(safe-area-inset-bottom));gap:6px 14px}
+  .toast{left:10px;right:10px;bottom:calc(12px + env(safe-area-inset-bottom))}
+  .log > div{grid-template-columns:58px minmax(0,1fr)}
+  .log .x{grid-column:1/-1}
   #healthTable thead{display:none}
   #healthTable,#healthTable tbody{display:block}
-  #healthTable tr{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 10px;padding:12px 14px;border-bottom:1px solid var(--line)}
-  #healthTable td{border:0;padding:0}
-  #healthTable td:nth-child(2),#healthTable td:nth-child(3),#healthTable td:nth-child(4){display:none}
-  #healthTable td:nth-child(1){grid-column:1;grid-row:1}
-  #healthTable td:nth-child(6){grid-column:2;grid-row:1;text-align:right}
-  #healthTable td:nth-child(7){grid-column:1;grid-row:2;color:var(--muted);font-size:13px}
-  #healthTable td:nth-child(5){grid-column:2;grid-row:2;font-size:13px}
-  footer{padding:0 14px calc(24px + env(safe-area-inset-bottom))}
-  .toast{bottom:calc(14px + env(safe-area-inset-bottom))}
+  #healthTable tr{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:3px 10px;padding:10px 12px;border-bottom:1px solid var(--line)}
+  #healthTable td{border:0;padding:0;text-align:left}
+  #healthTable td.hm{display:none}
+  #healthTable td.c1{grid-column:1;grid-row:1;white-space:normal}
+  #healthTable td.c8{grid-column:2;grid-row:1;text-align:right}
+  #healthTable td.c9{grid-column:1;grid-row:2;color:var(--muted)}
+  #healthTable td.c7{grid-column:2;grid-row:2;text-align:right}
 }
 </style>
 </head>
 <body>
-<header>
-  <div class="logo"><i>◎</i> Digipos <small>Lead Radar</small></div>
+<header class="top">
+  <div class="brand"><b>Digi<span>Pos</span></b><small>LEAD RADAR</small></div>
   <nav class="tabs">
-    <button data-tab="leads" class="on">Leads</button>
-    <button data-tab="health">Merchant health</button>
+    <button data-tab="leads" class="on"><kbd>L</kbd>LEADS</button>
+    <button data-tab="health"><kbd>H</kbd>HEALTH</button>
   </nav>
+  <div class="sp"></div>
+  <div class="clock" id="clock"></div>
   <button class="icon-btn" id="theme" title="Switch light / dark" aria-label="Switch light or dark theme"></button>
 </header>
+<div class="ticker" id="ticker"></div>
 
 <main>
-  <section id="leadsView">
-    <div class="filters">
-      <div class="chips" id="emirates"></div>
-      <span class="sep"></span>
-      <div class="chips" id="lanes"></div>
+  <section class="view" id="leadsView">
+    <div class="cmd">
+      <div class="seg"><span class="k">EMIRATE</span><div class="opts" id="emirates"></div></div>
+      <div class="seg"><span class="k">LANE</span><div class="opts" id="lanes"></div></div>
+      <label class="search"><span>/</span><input id="q" placeholder="SEARCH NAME OR AREA" autocomplete="off"></label>
     </div>
-    <div id="laneBanner"></div>
-    <div class="grid">
-      <div class="card"><ul class="list" id="list"><li class="empty">Loading leads…</li></ul></div>
-      <div class="card detail" id="detail"><div class="empty">Pick a lead to see why it ranks where it does.</div></div>
+    <div class="desk">
+      <section class="panel p-table">
+        <div class="ph"><span class="code">LDS</span>RANKED LEADS<span class="r" id="tableMeta"></span></div>
+        <div class="scroll"><table id="leadTable"></table></div>
+      </section>
+      <section class="panel p-detail" id="detailPanel">
+        <div class="ph"><span class="code">DTL</span><span id="dtlHead">LEAD DETAIL</span><button class="close" data-close>CLOSE ✕</button></div>
+        <div class="scroll" id="detail"><div class="empty">SELECT A LEAD</div></div>
+      </section>
+      <section class="panel p-cov">
+        <div class="ph"><span class="code">COV</span>AREA COVERAGE<span class="r hide-sm">HOW IT LEARNS: REP FINDS A TERMINAL → AREA +1 → NEIGHBOURS −6 PTS</span></div>
+        <div class="scroll"><table id="covTable"></table></div>
+      </section>
+      <section class="panel p-log">
+        <div class="ph"><span class="code">LOG</span>ACTIVITY<span class="r" id="logMeta"></span></div>
+        <div class="scroll"><div class="log" id="log"></div></div>
+      </section>
     </div>
   </section>
 
-  <section id="healthView" hidden>
-    <div class="banner">Simulated data: these merchants are made up for the demo. Status rule: Jun→Sep volume down 25% or more = At risk, down 10–25% = Watch.</div>
-    <div class="tiles" id="tiles"></div>
-    <div class="card tablewrap"><table id="healthTable"></table></div>
+  <section class="view" id="healthView" hidden>
+    <div class="kpis" id="kpis"></div>
+    <section class="panel hv">
+      <div class="ph"><span class="code">MHL</span>MERCHANT HEALTH<span class="r">SIMULATED · JUN→SEP ≤ −25% AT RISK · ≤ −10% WATCH</span></div>
+      <div class="scroll"><table id="healthTable"></table></div>
+    </section>
   </section>
 </main>
 
-<footer>
-  <span id="source">Leads: real public listings (Google Places, collected 17 Oct 2026) unless marked Example.</span>
-  <button id="reset">Reset demo</button>
-</footer>
+<footer class="status" id="status"></footer>
 <div class="toast" id="toast"></div>
 
 <script>
-const EMIRATES = ["All","Dubai","Abu Dhabi","Sharjah","Ajman","Umm Al Quwain","Ras Al Khaimah","Fujairah"];
-const LANES = [["established","Established"],["new_opening","New openings"],["all","All"]];
-const PART_LABEL = {newness:"Newness",size:"Size proxy",category:"Category fit",location:"Location",contact:"Contactability"};
-const WEIGHTS = {newness:30,size:25,category:20,location:15,contact:10};
-const OUTCOMES = [["interested","Interested","primary"],["not_now","Not now",""],["has_terminal","Already has a terminal","hot"],["signed","Signed",""]];
-const STATUS_LABEL = {interested:"Interested",not_now:"Not now",has_terminal:"Has terminal",signed:"Signed"};
+const EMIRATES = [["All","ALL"],["Dubai","DXB"],["Abu Dhabi","AUH"],["Sharjah","SHJ"],["Ajman","AJM"],["Umm Al Quwain","UAQ"],["Ras Al Khaimah","RAK"],["Fujairah","FUJ"]];
+const EM_CODE = Object.fromEntries(EMIRATES);
+const LANES = [["established","ESTABLISHED"],["new_opening","NEW OPENINGS"],["all","ALL"]];
+const PARTS = [["newness","NEWNESS","NEW",30],["size","SIZE PROXY","SIZE",25],["category","CATEGORY FIT","CAT",20],["location","LOCATION","LOC",15],["contact","CONTACT","CON",10]];
+const OUTCOMES = [["interested","INTERESTED","1","pri"],["not_now","NOT NOW","2",""],["has_terminal","HAS TERMINAL","3","hot"],["signed","SIGNED","4",""]];
+const ST = {interested:["INT","in"],not_now:["NOT NOW","no"],has_terminal:["HAS TERM","no"],signed:["SIGNED","st"]};
+const OUT_LABEL = {interested:"INTERESTED",not_now:"NOT NOW",has_terminal:"HAS TERMINAL",signed:"SIGNED"};
 
-const state = {emirate:"All", lane:"established", all:[], selected:null, deltas:{}};
+const state = {emirate:"All", lane:"established", q:"", sort:{key:"score",dir:-1}, all:[], selected:null,
+  deltas:{}, activity:[], logNotes:{}, logFresh:false, health:null, store:"", locked:false, flashCluster:null};
 const $ = s => document.querySelector(s);
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const fmt = n => Number(n||0).toLocaleString("en-US");
+const aedK = n => "AED " + (n >= 1e6 ? (n/1e6).toFixed(2)+"M" : n >= 1e3 ? (n/1e3).toFixed(1)+"K" : n);
+const hms = d => new Intl.DateTimeFormat("en-GB",{timeZone:"Asia/Dubai",hour12:false,hour:"2-digit",minute:"2-digit",second:"2-digit"}).format(d);
+const isNarrow = () => matchMedia("(max-width:1100px)").matches;
+const ls = (k, v) => { try{ if(v === undefined) return localStorage.getItem(k); localStorage.setItem(k, v); }catch(e){ return null; } };
+const closed = l => l.status === "has_terminal" || l.status === "signed";
 
-async function api(path, opts){
-  const r = await fetch("/api/" + path, opts);
-  const j = await r.json().catch(() => ({error: "Bad response"}));
+/* ---------- API ---------- */
+async function api(path, opts = {}, retried){
+  const headers = {...(opts.headers||{})};
+  const key = ls("demoKey"); if(key) headers["X-Demo-Key"] = key;
+  const r = await fetch("/api/" + path, {...opts, headers});
+  const j = await r.json().catch(() => ({error:"Bad response from server"}));
+  if(r.status === 401 && !retried){
+    const k = prompt("Demo passcode:"); if(k){ ls("demoKey", k); return api(path, opts, true); }
+  }
   if(!r.ok) throw new Error(j.error || r.statusText);
   return j;
 }
-
 function toast(msg){
   const t = $("#toast"); t.textContent = msg; t.classList.add("show");
-  clearTimeout(t._h); t._h = setTimeout(() => t.classList.remove("show"), 5200);
+  clearTimeout(t._h); t._h = setTimeout(() => t.classList.remove("show"), 5500);
 }
 
-/* ---------- Leads ---------- */
-async function loadLeads(){
-  const j = await api("leads");
-  state.all = j.leads;
+/* ---------- data ---------- */
+async function loadLeads(){ state.all = (await api("leads")).leads; }
+async function loadActivity(){ state.activity = (await api("activity")).activity; }
+async function loadHealth(){ state.health = await api("health"); }
+
+function inView(l){
+  const q = state.q.trim().toLowerCase();
+  return (state.emirate === "All" || l.emirate === state.emirate) &&
+    (state.lane === "all" || l.lane === state.lane) &&
+    (!q || `${l.business_name} ${l.area} ${l.category} ${l.cluster}`.toLowerCase().includes(q));
 }
-function visible(){
-  return state.all.filter(l =>
-    (state.emirate === "All" || l.emirate === state.emirate) &&
-    (state.lane === "all" || l.lane === state.lane));
+const ranked = () => state.all.filter(inView); // server order: score, closed at bottom
+function rows(){
+  const list = ranked();
+  const rank = new Map(list.map((l,i) => [l.id, i+1]));
+  const {key, dir} = state.sort;
+  if(key !== "score"){
+    const val = l => key === "name" ? (l.business_name||"").toLowerCase()
+      : (l.score_parts && key in l.score_parts) ? l.score_parts[key] : (l[key] ?? -1);
+    list.sort((a,b) => (closed(a) - closed(b)) || (val(a) > val(b) ? dir : val(a) < val(b) ? -dir : 0));
+  } else if(dir === 1) list.reverse();
+  return {list, rank};
+}
+
+/* ---------- render: chrome ---------- */
+function renderTicker(){
+  const all = state.all, open = all.filter(l => !closed(l));
+  const by = e => all.filter(l => l.emirate === e).length;
+  const top = open.filter(l => !l.is_example).sort((a,b) => b.score - a.score)[0];
+  const avg = open.length ? Math.round(open.reduce((s,l) => s + l.score, 0) / open.length) : 0;
+  const terms = all.filter(l => l.status === "has_terminal").length;
+  const h = state.health?.summary;
+  const t = (k, v, c="") => `<div class="tick"><span class="k">${k}</span><span class="v ${c}">${v}</span></div>`;
+  $("#ticker").innerHTML =
+    t("LEADS", all.length) + t("OPEN", open.length, "acc") +
+    t("DXB", by("Dubai")) + t("AUH", by("Abu Dhabi")) + t("SHJ", by("Sharjah")) + t("AJM", by("Ajman")) + t("RAK", by("Ras Al Khaimah")) +
+    t("AVG SCORE", avg) + (top ? t("TOP REAL", esc(top.business_name.toUpperCase()) + " · " + top.score, "acc") : "") +
+    t("TERMINALS FOUND", terms, terms ? "hot" : "") +
+    (h ? t("AT RISK", h.at_risk, "hot") + t("WATCH", h.watch, "warn") + t("VOL AT RISK", aedK(h.volume_at_risk_sep), "hot") : "");
+}
+function renderStatus(){
+  const real = state.all.filter(l => !l.is_example).length, ex = state.all.length - real;
+  const off = state.store !== "SupabaseStore";
+  $("#status").innerHTML = `
+    <span><i class="dot ${off?"off":""}"></i>${off ? "OFFLINE · LOCAL DATA" : "SUPABASE · LIVE"}${state.locked ? " · LOCKED" : ""}</span>
+    <span>DATA 17 OCT 2026</span>
+    <span>${real} REAL · ${ex} EXAMPLE · ${state.health?.summary.tracked ?? 30} SIMULATED MERCHANTS</span>
+    <span class="keys">J/K MOVE · 1–4 LOG · U UNDO · / SEARCH · L/H VIEWS</span>
+    <button id="reset">RESET DEMO</button>`;
 }
 function renderFilters(){
-  const count = (fn) => state.all.filter(fn).length;
-  $("#emirates").innerHTML = EMIRATES.map(e => {
-    const n = e === "All" ? state.all.length : count(l => l.emirate === e);
-    return `<button class="chip ${state.emirate===e?"on":""}" data-em="${e}">${e}<span class="n">${n}</span></button>`;
+  const base = state.all.filter(l => state.lane === "all" || l.lane === state.lane);
+  $("#emirates").innerHTML = EMIRATES.map(([e,code]) => {
+    const n = e === "All" ? base.length : base.filter(l => l.emirate === e).length;
+    return `<button class="${state.emirate===e?"on":""}" data-em="${e}" title="${e}">${code}<span class="n">${n}</span></button>`;
   }).join("");
-  $("#lanes").innerHTML = LANES.map(([k,label]) =>
-    `<button class="chip ${state.lane===k?"on":""}" data-lane="${k}">${label}</button>`).join("");
-  const showEx = state.lane !== "established" && visible().some(l => l.is_example);
-  $("#laneBanner").innerHTML = showEx ? `<div class="banner">Rows marked <b>Example</b> show the format licence data will arrive in. They are not real businesses. Dubai licence data is the only open source confirmed so far; other emirates are not yet covered for new openings.</div>` : "";
+  $("#lanes").innerHTML = LANES.map(([k,label]) => `<button class="${state.lane===k?"on":""}" data-lane="${k}">${label}</button>`).join("");
 }
-function renderList(animate){
-  const ul = $("#list");
+
+/* ---------- render: leads table ---------- */
+function renderTable(animate){
   const before = {};
-  if(animate) ul.querySelectorAll(".row").forEach(li => before[li.dataset.id] = li.getBoundingClientRect().top);
-  const rows = visible();
-  if(!rows.length){ ul.innerHTML = `<li class="empty">No leads here yet. ${state.emirate !== "All" ? "Add rows for " + esc(state.emirate) + " in the sheet." : ""}</li>`; return; }
-  ul.innerHTML = rows.map((l,i) => {
-    const closed = l.status === "has_terminal" || l.status === "signed";
-    const d = state.deltas[l.id];
-    return `<li class="row ${state.selected===l.id?"sel":""} ${closed?"closed":""} ${d?"moved":""}" data-id="${l.id}">
-      <div class="rank">${i+1}</div>
-      <div>
-        <div class="name">${esc(l.business_name)}</div>
-        <div class="meta">${esc(l.category)} · ${esc(l.area)}, ${esc(l.emirate)}
-          ${l.is_example?'<span class="tag ex">Example</span>':""}
-          ${l.lane==="new_opening"&&!l.is_example?'<span class="tag new">New? unverified</span>':""}
-          ${l.status!=="open"?`<span class="tag st-${l.status}">${STATUS_LABEL[l.status]}</span>`:""}</div>
-      </div>
-      <div class="why">${esc(l.reason)}</div>
-      <div class="stat">${l.rating?`<b>${l.rating}★</b> · ${Number(l.review_count||0).toLocaleString()}`:(l.is_example?"no listing":"–")}</div>
-      <div><div class="score">${l.score}</div><div class="bar"><b style="width:${l.score}%"></b></div></div>
-      ${d?`<span class="delta">${d.from} → ${d.to}</span>`:""}
-    </li>`;
-  }).join("");
-  if(animate){ // FLIP: slide rows from their old position to the new one
-    ul.querySelectorAll(".row").forEach(li => {
-      const old = before[li.dataset.id]; if(old === undefined) return;
-      const dy = old - li.getBoundingClientRect().top; if(!dy) return;
-      li.animate([{transform:`translateY(${dy}px)`},{transform:"translateY(0)"}],{duration:700,easing:"cubic-bezier(.2,.8,.2,1)"});
+  if(animate) document.querySelectorAll("#leadTable tbody tr[data-id]").forEach(tr => before[tr.dataset.id] = tr.getBoundingClientRect().top);
+  const {list, rank} = rows();
+  const {key, dir} = state.sort;
+  const th = (k, label, cls="") => `<th class="${cls} ${k && key===k ? "sorted" : ""}" ${k ? `data-sort="${k}"` : ""}>${label}${k && key===k ? (dir<0 ? " ▼" : " ▲") : ""}</th>`;
+  $("#tableMeta").innerHTML = `${list.length} SHOWN${list.some(l => l.is_example) ? ` · <span class="ex">EX = EXAMPLE FORMAT, NOT A REAL BUSINESS</span>` : ""}`;
+  if(!list.length){
+    $("#leadTable").innerHTML = `<tbody><tr><td class="l"><div class="empty">NO LEADS MATCH${state.emirate !== "All" ? " · ADD ROWS FOR " + esc(state.emirate.toUpperCase()) + " IN THE SHEET" : ""}</div></td></tr></tbody>`;
+    return;
+  }
+  $("#leadTable").innerHTML = `<thead><tr>${th("", "#", "rk")}${th("name","BUSINESS","l")}` +
+    PARTS.map(([k,,s]) => th(k, s, "hide-md")).join("") +
+    th("rating","★","hide-md") + th("review_count","REVS","hide-md") + th("score","SCORE") + th("","Δ") + `</tr></thead><tbody>` +
+    list.map(l => {
+      const d = state.deltas[l.id], p = l.score_parts || {};
+      const tags = (l.is_example ? `<span class="tg ex">EX</span>` : "") +
+        (l.lane === "new_opening" && !l.is_example ? `<span class="tg nw">NEW?</span>` : "") +
+        (l.status !== "open" ? `<span class="tg ${ST[l.status][1]}">${ST[l.status][0]}</span>` : "");
+      const delta = d ? d.to - d.from : 0;
+      return `<tr data-id="${l.id}" class="${state.selected===l.id?"sel":""} ${closed(l)?"closed":""} ${d?"flash":""}">
+        <td class="rk">${rank.get(l.id)}</td>
+        <td class="l biz"><div class="nm">${esc(l.business_name)}${tags}</div><div class="sb">${esc(l.category)} · ${esc(l.area)} · ${EM_CODE[l.emirate] || esc(l.emirate)}</div></td>
+        ${PARTS.map(([k,,,w]) => `<td class="cp hide-md">${p[k] ?? 0}<i><b style="width:${(p[k]||0)/w*100}%"></b></i></td>`).join("")}
+        <td class="hide-md nw-col ${l.rating ? "" : "mut"}">${l.rating ?? "—"}</td>
+        <td class="hide-md rv ${l.review_count ? "" : "mut"}">${l.review_count ? fmt(l.review_count) : "—"}</td>
+        <td class="sc">${l.score}</td>
+        <td class="dl ${delta<0 ? "dn" : delta>0 ? "up" : "mut"}">${delta ? (delta>0 ? "▲" : "▼") + Math.abs(delta) : "—"}</td>
+      </tr>`;
+    }).join("") + "</tbody>";
+  if(animate){
+    document.querySelectorAll("#leadTable tbody tr[data-id]").forEach(tr => {
+      const old = before[tr.dataset.id]; if(old === undefined) return;
+      const dy = old - tr.getBoundingClientRect().top; if(!dy) return;
+      tr.animate([{transform:`translateY(${dy}px)`},{transform:"none"}], {duration:750, easing:"cubic-bezier(.2,.8,.2,1)"});
     });
   }
 }
+
+/* ---------- render: detail ---------- */
 function renderDetail(){
-  const l = visible().find(x => x.id === state.selected);
+  const l = state.all.find(x => x.id === state.selected && inView(x));
   const box = $("#detail");
-  if(!l){ box.innerHTML = `<div class="empty">Pick a lead to see why it ranks where it does.</div>`; closeSheet(); return; }
-  const parts = l.score_parts || {};
-  const rank = visible().findIndex(x => x.id === l.id) + 1;
-  const phone = l.has_phone ? "Phone listed" : "No phone listed";
+  if(!l){ $("#dtlHead").textContent = "LEAD DETAIL"; box.innerHTML = `<div class="empty">SELECT A LEAD · J/K TO MOVE</div>`; closeSheet(); return; }
+  const list = ranked();
+  $("#dtlHead").textContent = `${l.id} · RANK ${list.findIndex(x => x.id === l.id) + 1}/${list.length}`;
+  const p = l.score_parts || {}, d = state.deltas[l.id];
   const wa = "https://wa.me/?text=" + encodeURIComponent(l.draft_message || "");
-  box.innerHTML = `
-    <button class="close" data-close>← Back to list</button>
-    ${l.is_example?'<div class="banner">Example format only, not a real business.</div>':""}
+  const lane = l.lane === "new_opening" ? (l.is_example ? "new opening (example)" : "new opening, unverified") : "established";
+  box.innerHTML = `<div class="dt">
+    ${l.is_example ? `<div class="exnote">EXAMPLE FORMAT · NOT A REAL BUSINESS</div>` : ""}
     <h2>${esc(l.business_name)}</h2>
-    <div class="sub">${esc(l.category)} · ${esc(l.area)}, ${esc(l.emirate)} · ${esc(l.lane_label||"")}</div>
-    <div class="big"><b>${l.score}</b><span>/ 100 · #${rank} in this view</span></div>
+    <div class="sub">${esc(l.category)} · ${esc(l.area)} · ${esc(l.emirate)} · ${lane}</div>
+    <div class="scoreline"><span class="big">${l.score}</span><span class="of">/100</span>
+      ${d ? `<span class="chg ${d.to < d.from ? "dn" : "up"}">${d.to < d.from ? "▼" : "▲"}${Math.abs(d.to - d.from)} FROM ${d.from}</span>` : ""}
+      ${l.status !== "open" ? `<span class="tg ${ST[l.status][1]}">${ST[l.status][0]}</span>` : ""}</div>
     <div class="reason">${esc(l.reason)}</div>
-    <div class="parts">${Object.keys(WEIGHTS).map(k => `
-      <div class="part"><span>${PART_LABEL[k]}</span>
-        <div class="bar"><b style="width:${(parts[k]||0)/WEIGHTS[k]*100}%"></b></div>
-        <span class="v">${parts[k]||0}/${WEIGHTS[k]}</span></div>`).join("")}
-      ${parts.signal?`<div class="part"><span>Review signal</span><div></div><span class="v">${parts.signal>0?"+":""}${parts.signal}</span></div>`:""}
-    </div>
-    <h3>Log visit outcome</h3>
-    <div class="btns out">${OUTCOMES.map(([k,label,cls]) =>
-      `<button class="btn ${cls}" data-outcome="${k}" ${l.status===k?"disabled":""}>${label}</button>`).join("")}</div>
-    <h3>WhatsApp draft (pre-written)</h3>
+    <div class="sect">SCORE BREAKDOWN</div>
+    ${PARTS.map(([k,label,,w]) => `<div class="comp"><span class="lb">${label}</span><span class="br"><b style="width:${(p[k]||0)/w*100}%"></b></span><span class="vv">${p[k]||0}/${w}</span></div>`).join("")}
+    ${p.signal ? `<div class="comp"><span class="lb">REVIEW SIGNAL</span><span></span><span class="vv ${p.signal < 0 ? "dn" : "up"}">${p.signal > 0 ? "+" : ""}${p.signal}</span></div>` : ""}
+    <div class="sect">LOG VISIT OUTCOME</div>
+    <div class="acts">${OUTCOMES.map(([k,label,key,cls]) => `<button class="btn ${cls} ${l.status===k ? "on" : ""}" data-outcome="${k}" ${l.status===k ? "disabled" : ""}><kbd>${key}</kbd>${label}</button>`).join("")}</div>
+    <button class="btn undo" data-undo ${state.activity.length ? "" : "disabled"}><kbd>U</kbd>UNDO LAST ACTION</button>
+    <div class="sect">WHATSAPP DRAFT · PRE-WRITTEN</div>
     <div class="msg">${esc(l.draft_message)}</div>
-    <div class="btns">
-      <button class="btn" id="copyMsg">Copy</button>
-      <a class="btn" href="${wa}" target="_blank" rel="noopener" style="text-decoration:none">Open in WhatsApp</a>
-    </div>
-    <div class="src">
-      ${l.rating?`Rating ${l.rating} from ${Number(l.review_count||0).toLocaleString()} reviews · `:""}${phone}
-      ${l.chain_check?` · ${esc(l.chain_check)}`:""}<br>
-      ${l.maps_link?`<a href="${esc(l.maps_link)}" target="_blank" rel="noopener">Google Maps listing</a>`:""}
-      ${l.website?` · <a href="${esc(l.website)}" target="_blank" rel="noopener">Website</a>`:""}
-      ${l.card_signal_note?`<br>Card signal: ${esc(l.card_signal_note)}`:""}
-      ${l.date_collected?`<br>Collected ${esc(l.date_collected)}`:""}
-    </div>`;
-  $("#copyMsg").onclick = () => navigator.clipboard?.writeText(l.draft_message).then(() => toast("Draft copied"));
+    <div class="row2"><button class="btn" data-copy>COPY</button><a class="btn" href="${wa}" target="_blank" rel="noopener">OPEN IN WHATSAPP</a></div>
+    <div class="sect">SOURCE</div>
+    <dl class="kv">
+      <dt>RATING</dt><dd>${l.rating ? `${l.rating} ★ · ${fmt(l.review_count)} reviews` : "—"}</dd>
+      <dt>PHONE</dt><dd>${l.has_phone ? "Listed" : "Not listed"}</dd>
+      <dt>OWNERSHIP</dt><dd>${esc(l.chain_check || "—")}</dd>
+      <dt>CARD SIGNAL</dt><dd>${esc(l.card_signal_note || "—")}</dd>
+      ${l.licence_issue_date ? `<dt>LICENCE DATE</dt><dd>${esc(l.licence_issue_date)}</dd>` : ""}
+      <dt>COLLECTED</dt><dd>${esc(l.date_collected || "—")}</dd>
+      <dt>LINKS</dt><dd>${l.maps_link ? `<a href="${esc(l.maps_link)}" target="_blank" rel="noopener">Google Maps</a>` : "—"}${l.website ? ` · <a href="${esc(l.website)}" target="_blank" rel="noopener">Website</a>` : ""}</dd>
+    </dl></div>`;
 }
 
-async function logOutcome(outcome){
-  const id = state.selected;
-  document.querySelectorAll("[data-outcome]").forEach(b => b.disabled = true);
-  try{
-    const res = await api("outcome", {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({lead_id:id, outcome})});
-    state.deltas = {};
-    res.moved.forEach(m => state.deltas[m.id] = m);
-    await loadLeads();
-    if(isMobile()) closeSheet();
-    renderFilters(); renderList(true); renderDetail();
-    const label = OUTCOMES.find(o => o[0] === outcome)[1];
-    toast(res.moved.length
-      ? `Logged “${label}”. ${res.moved.length} nearby lead${res.moved.length>1?"s":""} in ${res.cluster} moved down: that area now has more terminal coverage.`
-      : `Logged “${label}”.`);
-    setTimeout(() => { state.deltas = {}; }, 4000);
-  }catch(e){ toast("Could not save: " + e.message); renderDetail(); }
+/* ---------- render: coverage + log ---------- */
+function renderCoverage(){
+  const by = {};
+  state.all.filter(l => state.emirate === "All" || l.emirate === state.emirate).forEach(l => {
+    const c = by[l.cluster] ||= {cluster:l.cluster, em:l.emirate, n:0, open:0, term:0, sum:0};
+    c.n++; if(!closed(l)){ c.open++; c.sum += l.score; } if(l.status === "has_terminal") c.term++;
+  });
+  const list = Object.values(by).sort((a,b) => b.term - a.term || b.n - a.n || a.cluster.localeCompare(b.cluster));
+  $("#covTable").innerHTML = `<thead><tr><th class="l">AREA</th><th>EMI</th><th>LEADS</th><th>OPEN</th><th>TERM</th><th>AVG</th><th class="l hide-sm">COVERAGE</th></tr></thead><tbody>` +
+    list.map(c => `<tr class="${state.flashCluster === c.cluster ? "flash" : ""}">
+      <td class="l">${esc(c.cluster)}</td><td class="mut">${EM_CODE[c.em] || ""}</td><td>${c.n}</td><td>${c.open}</td>
+      <td class="${c.term ? "dn" : "mut"}">${c.term}</td><td>${c.open ? Math.round(c.sum / c.open) : "—"}</td>
+      <td class="l hide-sm"><span class="covbar"><b style="width:${c.n ? c.term / c.n * 100 : 0}%"></b></span></td></tr>`).join("") + "</tbody>";
+}
+function renderLog(){
+  const a = state.activity;
+  $("#logMeta").textContent = a.length ? `${a.length} VISIT${a.length > 1 ? "S" : ""} LOGGED` : "";
+  if(!a.length){ $("#log").innerHTML = `<p class="empty">NO VISITS LOGGED YET · SELECT A LEAD, PRESS 1–4</p>`; return; }
+  $("#log").innerHTML = a.map((v,i) => {
+    const note = state.logNotes[v.id] || (v.outcome === "has_terminal" ? `${esc(v.cluster)} coverage +1` : "");
+    return `<div class="${i === 0 && state.logFresh ? "new" : ""}"><span class="t">${v.at ? hms(new Date(v.at)) : ""}</span><span class="o ${v.outcome}">${OUT_LABEL[v.outcome]}</span><span class="x">${esc(v.name)} <span class="mut">${v.lead_id}</span>${note ? " → " + note : ""}</span></div>`;
+  }).join("");
+  state.logFresh = false;
 }
 
-/* ---------- Health ---------- */
+/* ---------- render: health ---------- */
 function spark(m){
   const v = ["vol_apr","vol_may","vol_jun","vol_jul","vol_aug","vol_sep"].map(k => m[k]).filter(x => x != null);
-  if(v.length < 2) return "";
-  const mn = Math.min(...v), mx = Math.max(...v), w = 84, h = 22;
-  const pts = v.map((x,i) => `${(i/(v.length-1))*w},${h - ((x-mn)/((mx-mn)||1))*h}`).join(" ");
-  const color = v[v.length-1] < v[0] ? "var(--bad)" : "var(--good)";
-  return `<svg width="${w}" height="${h+2}" viewBox="0 -1 ${w} ${h+2}"><polyline fill="none" stroke="${color}" stroke-width="2" points="${pts}"/></svg>`;
+  if(v.length < 2) return `<span class="mut">—</span>`;
+  const mn = Math.min(...v), mx = Math.max(...v), w = 90, h = 18;
+  const pts = v.map((x,i) => `${(i / (v.length-1) * w).toFixed(1)},${(h - (x-mn) / ((mx-mn)||1) * h).toFixed(1)}`).join(" ");
+  return `<svg width="${w}" height="${h+2}" viewBox="0 -1 ${w} ${h+2}" style="vertical-align:middle"><polyline fill="none" stroke="${v[v.length-1] < v[0] ? "var(--hot-ink)" : "var(--up)"}" stroke-width="1.6" points="${pts}"/></svg>`;
 }
-async function loadHealth(){
-  const j = await api("health"), s = j.summary;
-  const aed = n => "AED " + Number(n).toLocaleString();
-  $("#tiles").innerHTML = `
-    <div class="card tile"><div class="k">Merchants tracked</div><div class="v">${s.tracked}</div></div>
-    <div class="card tile bad"><div class="k">At risk</div><div class="v">${s.at_risk}</div></div>
-    <div class="card tile warn"><div class="k">Watch</div><div class="v">${s.watch}</div></div>
-    <div class="card tile"><div class="k">New (ramp-up)</div><div class="v">${s.new}</div></div>
-    <div class="card tile bad"><div class="k">Sep volume at risk</div><div class="v">${aed(s.volume_at_risk_sep)}</div></div>`;
-  $("#healthTable").innerHTML = `<thead><tr><th>Merchant</th><th>Area</th><th>Apr–Sep</th><th class="num">Sep volume</th><th class="num">Jun→Sep</th><th>Status</th><th>Next action</th></tr></thead><tbody>` +
+function renderHealth(){
+  const j = state.health; if(!j) return;
+  const s = j.summary;
+  const k = (label, v, c="") => `<div class="kpi"><div class="k">${label}</div><div class="v ${c}">${v}</div></div>`;
+  $("#kpis").innerHTML = k("MERCHANTS TRACKED", s.tracked, "acc") + k("AT RISK", s.at_risk, "hot") + k("WATCH", s.watch, "warn") + k("NEW · RAMP-UP", s.new) + k("SEP VOLUME AT RISK", aedK(s.volume_at_risk_sep), "hot");
+  const pct = c => c == null ? "—" : (Math.round(c*100) > 0 ? "+" : "") + String(Math.round(c*100)).replace("-0","0") + "%";
+  $("#healthTable").innerHTML = `<thead><tr><th class="l">MERCHANT</th><th class="l">CATEGORY</th><th class="l">AREA</th><th>TERM</th><th class="l">APR–SEP</th><th>SEP VOLUME</th><th>JUN→SEP</th><th class="l">STATUS</th><th class="l">NEXT ACTION</th></tr></thead><tbody>` +
     j.merchants.map(m => `<tr>
-      <td><b>${esc(m.name)}</b><div class="meta">${esc(m.category)} · ${m.terminals} terminal${m.terminals>1?"s":""}</div></td>
-      <td>${esc(m.area)}, ${esc(m.emirate)}</td>
-      <td>${spark(m)}</td>
-      <td class="num">${aed(m.vol_sep||0)}</td>
-      <td class="num">${m.change_jun_to_sep==null?"–":(Math.round(m.change_jun_to_sep*100)>0?"+":"")+Math.round(m.change_jun_to_sep*100).toString().replace("-0","0")+"%"}</td>
-      <td><span class="pill ${m.status.split(" ")[0]}">${m.status}</span></td>
-      <td>${esc(m.suggested_action)}</td></tr>`).join("") + "</tbody>";
+      <td class="l c1" style="font-family:'IBM Plex Sans',sans-serif;font-weight:600">${esc(m.name)}</td>
+      <td class="l hm">${esc(m.category)}</td>
+      <td class="l hm">${esc(m.area)} · ${EM_CODE[m.emirate] || esc(m.emirate)}</td>
+      <td class="hm">${m.terminals}</td>
+      <td class="l hm">${spark(m)}</td>
+      <td class="hm">${m.vol_sep != null ? fmt(m.vol_sep) : "—"}</td>
+      <td class="c7 ${m.change_jun_to_sep <= -0.1 ? "dn" : m.change_jun_to_sep > 0 ? "up" : ""}">${pct(m.change_jun_to_sep)}</td>
+      <td class="l c8"><span class="pill ${m.status.split(" ")[0]}">${m.status.toUpperCase()}</span></td>
+      <td class="l c9">${esc(m.suggested_action)}</td></tr>`).join("") + "</tbody>";
 }
 
-/* ---------- Mobile sheet + theme ---------- */
-const isMobile = () => matchMedia("(max-width:900px)").matches;
-function openSheet(){ const d = $("#detail"); d.scrollTop = 0; d.classList.add("open"); document.body.classList.add("sheet"); }
-function closeSheet(){ $("#detail").classList.remove("open"); document.body.classList.remove("sheet"); }
-addEventListener("keydown", e => { if(e.key === "Escape") closeSheet(); });
+function renderAll(animate){ renderTicker(); renderFilters(); renderTable(animate); renderDetail(); renderCoverage(); renderLog(); renderStatus(); }
 
+/* ---------- actions ---------- */
+function select(id, open){
+  state.selected = id; renderTable(); renderDetail();
+  const tr = document.querySelector(`#leadTable tr[data-id="${id}"]`);
+  if(tr && !isNarrow()) tr.scrollIntoView({block:"nearest"});
+  if(open && isNarrow()) openSheet();
+}
+function move(step){
+  const {list} = rows(); if(!list.length) return;
+  const i = list.findIndex(l => l.id === state.selected);
+  select(list[Math.max(0, Math.min(list.length - 1, i < 0 ? 0 : i + step))].id);
+}
+function applyMoves(res){
+  state.deltas = {};
+  (res.moved || []).forEach(m => state.deltas[m.id] = m);
+  state.flashCluster = res.moved && res.moved.length ? res.cluster : null;
+}
+let busy = false;
+async function logOutcome(outcome){
+  const id = state.selected; if(!id || busy) return;
+  const l = state.all.find(x => x.id === id); if(!l || l.status === outcome) return;
+  busy = true;
+  document.querySelectorAll("[data-outcome],[data-undo]").forEach(b => b.disabled = true);
+  try{
+    const res = await api("outcome", {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({lead_id:id, outcome})});
+    applyMoves(res);
+    await Promise.all([loadLeads(), loadActivity()]);
+    if(state.activity[0]) state.logNotes[state.activity[0].id] = res.moved.length
+      ? `${esc(res.cluster)} coverage +1 · ${res.moved.length} re-ranked` : (outcome === "has_terminal" ? `${esc(res.cluster)} coverage +1` : "");
+    state.logFresh = true;
+    if(isNarrow()) closeSheet();
+    renderAll(true);
+    toast(res.moved.length
+      ? `${OUT_LABEL[outcome]} · ${l.business_name}. ${res.moved.length} nearby lead${res.moved.length > 1 ? "s" : ""} in ${res.cluster} re-ranked down: that area now has more terminal coverage.`
+      : `${OUT_LABEL[outcome]} · ${l.business_name}`);
+  }catch(e){ toast("Could not save: " + e.message); renderDetail(); }
+  busy = false;
+}
+async function undo(){
+  if(busy || !state.activity.length) return;
+  busy = true;
+  try{
+    const res = await api("undo", {method:"POST"});
+    applyMoves(res);
+    await Promise.all([loadLeads(), loadActivity()]);
+    renderAll(true);
+    toast(`Undid ${OUT_LABEL[res.undone.outcome]} on ${res.undone.name}${res.moved.length ? ` · ${res.moved.length} leads restored` : ""}`);
+  }catch(e){ toast("Could not undo: " + e.message); }
+  busy = false;
+}
+async function reset(){
+  if(!confirm("Clear all logged visits and restore the original ranking?")) return;
+  try{
+    await api("reset", {method:"POST"});
+    state.deltas = {}; state.flashCluster = null; state.logNotes = {};
+    await Promise.all([loadLeads(), loadActivity()]);
+    renderAll(); toast("Demo reset · original ranking restored");
+  }catch(e){ toast("Could not reset: " + e.message); }
+}
+
+/* ---------- sheet, tabs, theme, clock ---------- */
+function openSheet(){ $("#detail").scrollTop = 0; $("#detailPanel").classList.add("open"); document.body.classList.add("sheet"); }
+function closeSheet(){ $("#detailPanel").classList.remove("open"); document.body.classList.remove("sheet"); }
+function showTab(tab){
+  document.querySelectorAll(".tabs button").forEach(b => b.classList.toggle("on", b.dataset.tab === tab));
+  $("#leadsView").hidden = tab !== "leads"; $("#healthView").hidden = tab !== "health";
+  $("#toast").classList.remove("show"); closeSheet();
+  if(tab === "health") renderHealth();
+}
 const SUN = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>';
 const MOON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>';
-const isDark = () => (document.documentElement.dataset.theme || (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light")) === "dark";
-function paintThemeBtn(){ $("#theme").innerHTML = isDark() ? SUN : MOON; }
+const paintTheme = () => $("#theme").innerHTML = document.documentElement.dataset.theme === "light" ? MOON : SUN;
 $("#theme").onclick = () => {
-  const next = isDark() ? "light" : "dark";
-  document.documentElement.dataset.theme = next;
-  try{ localStorage.setItem("theme", next); }catch(e){}
-  paintThemeBtn();
+  const next = document.documentElement.dataset.theme === "light" ? "dark" : "light";
+  document.documentElement.dataset.theme = next; ls("theme", next); paintTheme();
 };
-paintThemeBtn();
+paintTheme();
+const tickClock = () => $("#clock").textContent = "DUBAI " + hms(new Date()) + " GST";
+tickClock(); setInterval(tickClock, 1000);
 
-/* ---------- Wiring ---------- */
+/* ---------- events ---------- */
 document.addEventListener("click", e => {
-  const t = e.target.closest("button, .row"); if(!t) return;
+  const t = e.target.closest("button, tr[data-id], th[data-sort]"); if(!t) return;
+  if(t.matches("tr[data-id]")) return select(t.dataset.id, true);
+  if(t.matches("th[data-sort]")){
+    const k = t.dataset.sort;
+    state.sort = state.sort.key === k ? {key:k, dir:-state.sort.dir} : {key:k, dir: k === "name" ? 1 : -1};
+    return renderTable();
+  }
   if(t.dataset.em || t.dataset.lane){
     if(t.dataset.em) state.emirate = t.dataset.em; else state.lane = t.dataset.lane;
-    state.deltas = {};
-    const v = visible();
-    if(!isMobile() && v.length && !v.some(x => x.id === state.selected)) state.selected = v[0].id;
-    renderFilters(); renderList(); renderDetail();
+    state.deltas = {}; state.flashCluster = null;
+    const {list} = rows();
+    if(!isNarrow() && list.length && !list.some(l => l.id === state.selected)) state.selected = list[0].id;
+    return renderAll();
   }
-  else if(t.classList.contains("row")){ state.selected = t.dataset.id; renderList(); renderDetail(); if(isMobile()) openSheet(); }
-  else if(t.hasAttribute("data-close")){ closeSheet(); }
-  else if(t.dataset.outcome){ logOutcome(t.dataset.outcome); }
-  else if(t.dataset.tab){
-    document.querySelectorAll("nav.tabs button").forEach(b => b.classList.toggle("on", b === t));
-    $("#toast").classList.remove("show");
-    $("#leadsView").hidden = t.dataset.tab !== "leads";
-    $("#healthView").hidden = t.dataset.tab !== "health";
-    if(t.dataset.tab === "health") loadHealth().catch(err => $("#tiles").innerHTML = `<div class="err">${esc(err.message)}</div>`);
+  if(t.dataset.outcome) return logOutcome(t.dataset.outcome);
+  if(t.hasAttribute("data-undo")) return undo();
+  if(t.hasAttribute("data-close")) return closeSheet();
+  if(t.hasAttribute("data-copy")){
+    const l = state.all.find(x => x.id === state.selected);
+    return navigator.clipboard?.writeText(l.draft_message).then(() => toast("Draft copied"));
   }
+  if(t.dataset.tab) return showTab(t.dataset.tab);
+  if(t.id === "reset") return reset();
 });
-$("#reset").onclick = async () => {
-  if(!confirm("Clear all logged visits and restore the original ranking?")) return;
-  await api("reset", {method:"POST"}); state.deltas = {}; await loadLeads();
-  renderFilters(); renderList(); renderDetail(); toast("Demo reset");
-};
+$("#q").addEventListener("input", e => { state.q = e.target.value; renderTable(); renderDetail(); });
+document.addEventListener("keydown", e => {
+  if(e.target.matches("input")){ if(e.key === "Escape"){ e.target.value = ""; state.q = ""; e.target.blur(); renderTable(); } return; }
+  if(e.metaKey || e.ctrlKey || e.altKey) return;
+  if(e.key === "Escape") return closeSheet();
+  if(e.key === "h" || e.key === "H") return showTab("health");
+  if(e.key === "l" || e.key === "L") return showTab("leads");
+  if($("#leadsView").hidden) return;
+  if(e.key === "j" || e.key === "ArrowDown"){ e.preventDefault(); return move(1); }
+  if(e.key === "k" || e.key === "ArrowUp"){ e.preventDefault(); return move(-1); }
+  if(e.key === "/"){ e.preventDefault(); return $("#q").focus(); }
+  if(e.key === "u" || e.key === "U") return undo();
+  const o = OUTCOMES.find(x => x[2] === e.key); if(o) return logOutcome(o[0]);
+});
 
-loadLeads().then(() => {
-    if(!isMobile() && visible().length) state.selected = visible()[0].id;
-    renderFilters(); renderList(); renderDetail();
-  })
-  .catch(e => $("#list").innerHTML = `<li class="err">Could not load leads: ${esc(e.message)}</li>`);
+/* ---------- boot ---------- */
+(async () => {
+  try{
+    const [ping] = await Promise.all([api("ping"), loadLeads(), loadActivity(), loadHealth()]);
+    state.store = ping.store; state.locked = ping.locked;
+    if(!isNarrow()){ const {list} = rows(); if(list.length) state.selected = list[0].id; }
+    renderAll();
+  }catch(e){
+    $("#leadTable").innerHTML = `<tbody><tr><td class="l"><div class="empty" style="color:var(--hot-ink)">COULD NOT LOAD: ${esc(e.message)}</div></td></tr></tbody>`;
+  }
+})();
 </script>
 </body>
 </html>

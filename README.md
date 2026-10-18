@@ -20,6 +20,7 @@ It also has a merchant health view for existing (simulated) customers.
 2. Under **Environment Variables**, add these two:
    - `SUPABASE_URL` = `https://pycaryznonirjmwkybsb.supabase.co`
    - `SUPABASE_SERVICE_ROLE_KEY` = your secret key. Get it from Supabase → Project Settings → API Keys, using either the `service_role` key or a `sb_secret_…` key.
+   - Optional: `DEMO_PASSCODE` = any code. Viewing stays open, but logging outcomes, undo and reset will ask for this code once per browser.
 3. Click **Deploy**, then open `/api/ping` on the site. It should return `{"ok": true, "store": "SupabaseStore"}`.
 
 The browser never sees the Supabase key. Every read and write goes through `/api`, and Row Level Security is on with no public policies.
@@ -52,6 +53,8 @@ The import keeps any visits already logged, and recalculates every score. Add `-
 | `GET /api/leads?emirate=Dubai&lane=established` | Ranked leads. Leads that already have a terminal or have signed sink to the bottom. |
 | `POST /api/outcome` `{"lead_id":"L009","outcome":"has_terminal"}` | Logs a visit and re-scores. Outcomes: `interested`, `not_now`, `has_terminal`, `signed`. |
 | `GET /api/health` | Merchant status: Jun→Sep down 25% or more = At risk, down 10–25% = Watch, no June figure = New. |
+| `POST /api/undo` | Removes the last logged visit and restores the scores it changed. |
+| `GET /api/activity` | The last 40 logged visits, newest first. |
 | `POST /api/reset` | Clears all visits and restores the original ranking, for rehearsals. |
 
 ## How scoring works (`api/index.py`, top of file)
@@ -69,6 +72,8 @@ Area names are grouped into neighbourhoods by `cluster_for()`. For example, "Al 
 Every number is an assumption, kept in config dictionaries so it's easy to change.
 
 ## 90-second demo path
+
+Keyboard: `J`/`K` move, `1`–`4` log an outcome, `U` undo, `/` search, `L`/`H` switch views.
 
 1. **Leads** tab, then **Dubai**. Show the ranked list.
 2. Click **Art of Teeth Dental Clinic** (Al Barsha). Show the score breakdown, the reason and the WhatsApp draft.

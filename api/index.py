@@ -274,6 +274,9 @@ class SupabaseStore:
     def clear_visits(self):
         self._req("DELETE", "visits?id=gte.0")
 
+    def delete_visit(self, visit):
+        self._req("DELETE", f"visits?id=eq.{int(visit['id'])}")
+
     def upsert_leads(self, rows):
         """Update existing leads with partial rows (score fields). PATCH per row, in parallel,
         because a bulk upsert would trip NOT NULL checks on columns we don't send."""
@@ -322,8 +325,14 @@ class LocalStore:
 
     def add_visit(self, lead_id, outcome, note=None):
         db = self._load()
-        db["visits"].append({"lead_id": lead_id, "outcome": outcome, "note": note,
-                             "created_at": datetime.utcnow().isoformat()})
+        next_id = max([v.get("id", 0) for v in db["visits"]] + [0]) + 1
+        db["visits"].append({"id": next_id, "lead_id": lead_id, "outcome": outcome, "note": note,
+                             "created_at": datetime.utcnow().isoformat() + "Z"})
+        self._save(db)
+
+    def delete_visit(self, visit):
+        db = self._load()
+        db["visits"] = [v for v in db["visits"] if v.get("id") != visit.get("id")]
         self._save(db)
 
     def clear_visits(self):
@@ -434,6 +443,40 @@ def route_health(store):
     return {"summary": summary, "merchants": rows, "simulated": True}
 
 
+def _moved(leads, before, changed, skip=None):
+    names = {l["id"]: l["business_name"] for l in leads}
+    return [{"id": c["id"], "name": names.get(c["id"]), "from": before.get(c["id"]), "to": c["score"]}
+            for c in changed if c["id"] != skip and c["score"] != before.get(c["id"])]
+
+
+def route_undo(store):
+    visits = store.visits()
+    if not visits:
+        return 400, {"error": "nothing to undo"}
+    last = visits[-1]
+    leads = store.leads()
+    before = {l["id"]: l.get("score") for l in leads}
+    store.delete_visit(last)
+    changed = rescore(leads, visits[:-1])
+    store.upsert_leads(changed)
+    target = next((l for l in leads if l["id"] == last["lead_id"]), {})
+    return 200, {"ok": True, "undone": {"lead_id": last["lead_id"], "outcome": last["outcome"],
+                                        "name": target.get("business_name")},
+                 "cluster": target.get("cluster"),
+                 "moved": _moved(leads, before, changed, skip=last["lead_id"])}
+
+
+def route_activity(store):
+    leads = {l["id"]: l for l in store.leads()}
+    out = []
+    for v in reversed(store.visits()[-40:]):
+        l = leads.get(v["lead_id"], {})
+        out.append({"id": v.get("id"), "at": v.get("created_at"), "lead_id": v["lead_id"],
+                    "name": l.get("business_name"), "cluster": l.get("cluster"),
+                    "outcome": v["outcome"]})
+    return {"activity": out}
+
+
 def route_reset(store):
     store.clear_visits()
     leads = store.leads()
@@ -441,11 +484,18 @@ def route_reset(store):
     return {"ok": True}
 
 
-def dispatch(method, path, query, body):
+def dispatch(method, path, query, body, headers=None):
     """Shared by the Vercel handler and dev_server.py. Returns (status, dict)."""
     store = get_store()
     name = path.split("?")[0].rstrip("/").split("/")[-1]
+    passcode = os.environ.get("DEMO_PASSCODE")
+    if method == "POST" and passcode and (headers or {}).get("X-Demo-Key") != passcode:
+        return 401, {"error": "passcode required"}
     try:
+        if method == "GET" and name == "activity":
+            return 200, route_activity(store)
+        if method == "POST" and name == "undo":
+            return route_undo(store)
         if method == "GET" and name == "leads":
             return 200, route_leads(store, query)
         if method == "GET" and name == "health":
@@ -455,7 +505,7 @@ def dispatch(method, path, query, body):
         if method == "POST" and name == "reset":
             return 200, route_reset(store)
         if method == "GET" and name in ("api", "index", "ping"):
-            return 200, {"ok": True, "store": type(store).__name__}
+            return 200, {"ok": True, "store": type(store).__name__, "locked": bool(passcode)}
         return 404, {"error": f"no route {method} {path}"}
     except RuntimeError as e:
         return 502, {"error": str(e)}
@@ -491,7 +541,7 @@ class handler(BaseHTTPRequestHandler):
         if method == "POST":
             n = int(self.headers.get("Content-Length") or 0)
             body = json.loads(self.rfile.read(n) or b"{}") if n else {}
-        status, payload = dispatch(method, path, query, body)
+        status, payload = dispatch(method, path, query, body, {"X-Demo-Key": self.headers.get("X-Demo-Key")})
         out = json.dumps(payload, default=str).encode()
         self.send_response(status)
         self.send_header("Content-Type", "application/json")

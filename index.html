@@ -6,9 +6,9 @@
 <title>Digipos Lead Radar</title>
 <script>try{var t=localStorage.getItem("theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-/* Digipos brand: royal #052D8B · indigo #0A0458 · logo blue #0062C1 · cyan #2CB8EA · red #E02B20 */
+/* Digipos brand blue #052D8B on a neutral grey / white base */
 :root,:root[data-theme="dark"]{
   --bg:#1f2024; --panel:#26272c; --head:#2c2d33; --line:#383940; --line-2:#474852;
   --ink:#f1f2f5; --muted:#b4b6c0; --dim:#8a8c98;
@@ -27,74 +27,75 @@
 }
 *{box-sizing:border-box}
 html,body{height:100%}
-body{margin:0;background:var(--bg);color:var(--ink);font:13px/1.4 "IBM Plex Sans",system-ui,sans-serif;display:flex;flex-direction:column}
-button,input,table,.ph,.tick,.status{font-family:"IBM Plex Mono",ui-monospace,Menlo,monospace}
-button{font-size:inherit;cursor:pointer;color:inherit}
+body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.45 "IBM Plex Sans",system-ui,sans-serif;display:flex;flex-direction:column}
+button,input{font:inherit;color:inherit}
+button{cursor:pointer}
 a{color:var(--accent-t)}
+.num{font-family:"IBM Plex Mono",ui-monospace,Menlo,monospace;font-variant-numeric:tabular-nums}
+.cap{font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--dim)}
 
 /* ---- top bar ---- */
-.top{display:flex;align-items:center;gap:14px;height:44px;padding:0 14px;background:var(--top);color:var(--ink);border-bottom:2px solid var(--brand);flex:none}
+.top{display:flex;align-items:center;gap:20px;height:48px;padding:0 16px;background:var(--top);border-bottom:2px solid var(--brand);flex:none}
 .brand{display:flex;align-items:baseline;gap:10px;white-space:nowrap}
-.brand b{font:700 17px/1 "IBM Plex Sans",sans-serif;letter-spacing:.02em}
+.brand b{font-size:18px;font-weight:700}
 .brand b span{color:var(--accent-t)}
-.brand small{font:500 11px "IBM Plex Mono",monospace;letter-spacing:.14em;color:var(--muted)}
-.tabs{display:flex;gap:2px;margin-left:12px}
-.tabs button{border:0;background:transparent;color:var(--muted);font:600 12px "IBM Plex Mono",monospace;letter-spacing:.06em;padding:6px 10px;border-bottom:2px solid transparent}
-.tabs button kbd{opacity:.6;margin-right:6px;font:inherit}
+.brand small{font-size:12px;color:var(--muted)}
+.tabs{display:flex;gap:4px}
+.tabs button{border:0;background:none;color:var(--muted);font-weight:600;padding:12px 10px;border-bottom:2px solid transparent;margin-bottom:-2px}
 .tabs button.on{color:var(--ink);border-bottom-color:var(--bar)}
 .top .sp{flex:1}
-.clock{font:500 12px "IBM Plex Mono",monospace;color:var(--muted);white-space:nowrap}
-.icon-btn{border:1px solid var(--line-2);background:transparent;color:var(--muted);width:28px;height:28px;display:grid;place-items:center;padding:0}
+.clock{font-size:12px;color:var(--muted);white-space:nowrap}
+.icon-btn{border:1px solid var(--line-2);background:none;color:var(--muted);width:30px;height:30px;display:grid;place-items:center;padding:0}
 .icon-btn:hover{color:var(--ink);border-color:var(--bar)}
 .icon-btn svg{width:15px;height:15px}
 
-/* ---- ticker ---- */
+/* ---- summary strip ---- */
 .ticker{display:flex;overflow-x:auto;scrollbar-width:none;background:var(--head);border-bottom:1px solid var(--line);flex:none}
 .ticker::-webkit-scrollbar{display:none}
-.tick{display:flex;gap:7px;align-items:baseline;padding:7px 14px;border-right:1px solid var(--line);white-space:nowrap;font-size:12px}
-.tick .k{color:var(--muted);font-size:11px;letter-spacing:.06em}
-.tick .v{font-weight:600}
+.tick{display:flex;gap:8px;align-items:baseline;padding:8px 18px;border-right:1px solid var(--line);white-space:nowrap}
+.tick .k{color:var(--muted);font-size:12.5px}
+.tick .v{font-weight:700}
 .tick .v.hot{color:var(--hot-ink)} .tick .v.acc{color:var(--accent-t)} .tick .v.warn{color:var(--warn)}
 
-/* ---- command bar ---- */
-.cmd{display:flex;gap:16px;align-items:center;padding:8px 14px;border-bottom:1px solid var(--line);flex:none;min-width:0}
-.seg{display:flex;align-items:center;min-width:0}
-.seg > .k{font:600 11px "IBM Plex Mono",monospace;color:var(--muted);letter-spacing:.08em;margin-right:8px}
+/* ---- filters ---- */
+.cmd{display:flex;flex-wrap:wrap;gap:10px 18px;align-items:center;padding:10px 16px;border-bottom:1px solid var(--line);flex:none;min-width:0}
+.seg{display:flex;align-items:center;gap:10px;min-width:0}
 .seg .opts{display:flex;border:1px solid var(--line-2);overflow-x:auto;scrollbar-width:none;min-width:0}
 .seg .opts::-webkit-scrollbar{display:none}
-.seg button{border:0;border-right:1px solid var(--line-2);background:transparent;padding:5px 10px;font-size:12px;font-weight:600;color:var(--muted);white-space:nowrap;flex:none}
+.seg button{border:0;border-right:1px solid var(--line-2);background:none;padding:6px 11px;font-size:13px;font-weight:600;color:var(--muted);white-space:nowrap;flex:none}
 .seg button:last-child{border-right:0}
-.seg button .n{color:var(--dim);margin-left:5px;font-weight:500}
+.seg button .n{opacity:.6;margin-left:5px;font-weight:500}
 .seg button.on{background:var(--accent);color:var(--accent-ink)}
-.seg button.on .n{color:inherit;opacity:.7}
-.search{margin-left:auto;display:flex;align-items:center;border:1px solid var(--line-2);padding:0 8px;min-width:220px}
-.search span{color:var(--dim);font:600 12px "IBM Plex Mono",monospace}
-.search input{border:0;background:transparent;color:var(--ink);font-size:12px;padding:6px;outline:none;width:100%}
+.search{margin-left:auto;display:flex;align-items:center;gap:6px;border:1px solid var(--line-2);padding:0 10px;min-width:220px}
+.search svg{width:14px;height:14px;color:var(--dim);flex:none}
+.search input{border:0;background:none;font-size:13px;padding:7px 0;outline:none;width:100%}
 
 /* ---- panels ---- */
 main{flex:1;min-height:0;display:flex;flex-direction:column}
 .view{flex:1;min-height:0;display:flex;flex-direction:column}
 .view[hidden]{display:none}
 .desk{flex:1;min-height:0;display:grid;gap:1px;background:var(--line);
-  grid-template-columns:minmax(0,1.15fr) minmax(0,1fr) minmax(380px,440px);
-  grid-template-rows:minmax(0,1fr) minmax(170px,30%);
+  grid-template-columns:minmax(0,1.2fr) minmax(0,1fr) minmax(380px,440px);
+  grid-template-rows:minmax(0,1fr) minmax(190px,32%);
   grid-template-areas:"table table detail" "cov log detail"}
 .panel{background:var(--panel);display:flex;flex-direction:column;min-height:0;min-width:0}
 .p-table{grid-area:table}.p-detail{grid-area:detail}.p-cov{grid-area:cov}.p-log{grid-area:log}
-.ph{display:flex;align-items:center;gap:10px;height:30px;padding:0 12px;background:var(--head);border-bottom:1px solid var(--line);font-size:11px;font-weight:600;letter-spacing:.08em;color:var(--muted);flex:none;white-space:nowrap}
-.ph .code{background:var(--accent);color:var(--accent-ink);padding:1px 6px;font-weight:700;letter-spacing:.04em}
-.ph .r{margin-left:auto;font-weight:500;color:var(--dim);overflow:hidden;text-overflow:ellipsis}
+.ph{display:flex;align-items:center;gap:10px;min-height:38px;padding:0 14px;background:var(--head);border-bottom:1px solid var(--line);flex:none;white-space:nowrap}
+.ph h2{margin:0;font-size:14px;font-weight:700;display:flex;align-items:center;gap:8px}
+.ph h2::before{content:"";width:4px;height:14px;background:var(--bar)}
+.ph .r{margin-left:auto;color:var(--muted);font-size:12.5px;overflow:hidden;text-overflow:ellipsis}
 .ph .r .ex{color:var(--ex)}
+.note{padding:8px 14px;font-size:12.5px;color:var(--muted);border-bottom:1px solid var(--line);background:var(--panel)}
 .scroll{flex:1;min-height:0;overflow:auto}
 
 /* ---- tables ---- */
-table{width:100%;border-collapse:collapse;font-size:12.5px}
-thead th{position:sticky;top:0;z-index:1;background:var(--panel);color:var(--dim);font-weight:600;font-size:10.5px;letter-spacing:.08em;text-align:right;padding:7px 8px;border-bottom:1px solid var(--line-2);white-space:nowrap;user-select:none}
+table{width:100%;border-collapse:collapse}
+thead th{position:sticky;top:0;z-index:1;background:var(--panel);font-size:11px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--dim);text-align:right;padding:9px 10px;border-bottom:1px solid var(--line-2);white-space:nowrap;user-select:none}
 thead th.l{text-align:left}
 thead th[data-sort]{cursor:pointer}
 thead th[data-sort]:hover{color:var(--ink)}
 thead th.sorted{color:var(--accent-t)}
-tbody td{padding:6px 8px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
+tbody td{padding:9px 10px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap;vertical-align:middle}
 tbody td.l{text-align:left}
 #leadTable tbody tr{cursor:pointer}
 #leadTable tbody tr:hover{background:var(--hover)}
@@ -102,85 +103,88 @@ tbody td.l{text-align:left}
 #leadTable tbody tr.closed td{opacity:.45}
 tr.flash{animation:flash 2.4s}
 @keyframes flash{0%{background:rgba(224,43,32,.30)}100%{background:transparent}}
-.rk{color:var(--dim);width:34px}
-.biz{font-family:"IBM Plex Sans",sans-serif;max-width:0;width:auto}
-.biz .nm{font-weight:600;font-size:13.5px;overflow:hidden;text-overflow:ellipsis}
-.biz .sb{color:var(--muted);font-size:12px;overflow:hidden;text-overflow:ellipsis}
-.tg{display:inline-block;font:600 9.5px "IBM Plex Mono",monospace;letter-spacing:.06em;padding:1px 4px;margin-left:6px;vertical-align:1px;border:1px solid currentColor}
+.rk{color:var(--dim);width:36px}
+.biz{max-width:0;width:28%}
+.biz .nm{font-weight:600;overflow:hidden;text-overflow:ellipsis}
+.biz .sb{color:var(--muted);font-size:12.5px;overflow:hidden;text-overflow:ellipsis}
+.area{color:var(--muted);max-width:0;width:16%;overflow:hidden;text-overflow:ellipsis}
+.why{color:var(--muted);font-size:12.5px;white-space:normal;max-width:0;width:34%;line-height:1.35}
+.why span{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.rt{width:64px}
+.sc{width:96px}
+.sc .sv{font-weight:700;font-size:15px}
+.sc i{display:block;height:3px;background:var(--bar-bg);margin-top:4px}
+.sc i b{display:block;height:100%;background:var(--bar)}
+.dl{width:72px;font-weight:600}
+.tg{display:inline-block;font-size:11px;font-weight:600;padding:1px 6px;margin-left:8px;vertical-align:1px;border:1px solid currentColor;white-space:nowrap}
 .tg.ex{color:var(--ex)} .tg.nw{color:var(--warn)} .tg.st{color:var(--up)} .tg.no{color:var(--hot-ink)} .tg.in{color:var(--accent-t)}
-.cp{width:58px}
-.nw-col{width:62px}
-.rv{width:72px}
-.cp i{display:block;height:2px;background:var(--bar-bg);margin-top:3px}
-.cp i b{display:block;height:100%;background:var(--bar)}
-.sc{font-weight:700;font-size:14px;width:54px}
-.dl{width:52px;font-weight:600}
 .dn{color:var(--hot-ink)} .up{color:var(--up)} .mut{color:var(--dim)}
 
 /* ---- detail ---- */
-.dt{padding:14px 16px 20px}
-.dt h2{margin:0;font-size:19px;font-weight:700;letter-spacing:-.01em}
-.dt .sub{font:500 11px "IBM Plex Mono",monospace;color:var(--muted);letter-spacing:.04em;margin-top:3px;text-transform:uppercase}
-.exnote{font:600 11px "IBM Plex Mono",monospace;color:var(--ex);border:1px solid var(--ex);padding:5px 8px;margin-bottom:10px}
-.scoreline{display:flex;align-items:baseline;gap:10px;margin:12px 0 10px;flex-wrap:wrap}
-.scoreline .big{font:700 46px/1 "IBM Plex Mono",monospace;color:var(--accent-t)}
-.scoreline .of{font:500 12px "IBM Plex Mono",monospace;color:var(--muted)}
-.scoreline .chg{font:700 12px "IBM Plex Mono",monospace;padding:2px 6px;border:1px solid currentColor}
-.reason{border-left:3px solid var(--bar);background:var(--head);padding:9px 11px;font-size:13px;font-weight:500;margin-bottom:12px}
-.sect{font:600 10.5px "IBM Plex Mono",monospace;letter-spacing:.1em;color:var(--dim);margin:16px 0 7px;display:flex;align-items:center;gap:8px}
-.sect::after{content:"";flex:1;height:1px;background:var(--line)}
-.comp{display:grid;grid-template-columns:104px 1fr 48px;gap:10px;align-items:center;font:500 11.5px "IBM Plex Mono",monospace;margin-bottom:6px}
-.comp .lb{color:var(--muted)}
-.comp .br{height:6px;background:var(--bar-bg)}
+.dt{padding:16px 18px 22px}
+.dt h3{margin:0;font-size:20px;font-weight:700}
+.dt .sub{color:var(--muted);margin-top:2px}
+.exnote{font-size:12.5px;font-weight:600;color:var(--ex);border:1px solid var(--ex);padding:6px 10px;margin-bottom:12px}
+.scoreline{display:flex;align-items:baseline;gap:10px;margin:14px 0 4px;flex-wrap:wrap}
+.scoreline .big{font:700 44px/1 "IBM Plex Mono",monospace;color:var(--accent-t)}
+.scoreline .of{color:var(--muted)}
+.scoreline .chg{font-size:12.5px;font-weight:700;padding:2px 7px;border:1px solid currentColor}
+.rankline{color:var(--muted);font-size:13px;margin-bottom:12px}
+.reason{border-left:3px solid var(--bar);background:var(--head);padding:10px 12px;font-weight:500}
+.sect{font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--dim);margin:20px 0 10px}
+.comp{display:grid;grid-template-columns:minmax(0,1fr) 110px 64px;gap:4px 12px;align-items:center;margin-bottom:10px}
+.comp .lb{font-weight:600;font-size:13px}
+.comp .hint{grid-column:1;color:var(--dim);font-size:12px;margin-top:-2px}
+.comp .br{grid-row:1/3;grid-column:2;height:6px;background:var(--bar-bg)}
 .comp .br b{display:block;height:100%;background:var(--bar)}
-.comp .vv{text-align:right}
-.acts{display:grid;grid-template-columns:1fr 1fr;gap:6px}
-.btn{display:flex;align-items:center;justify-content:center;gap:8px;border:1px solid var(--line-2);background:transparent;color:var(--ink);padding:8px 10px;font:600 11.5px "IBM Plex Mono",monospace;letter-spacing:.05em;text-decoration:none;text-align:center}
+.comp .vv{grid-row:1/3;grid-column:3;text-align:right;color:var(--muted);white-space:nowrap}
+.acts{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.btn{display:flex;align-items:center;justify-content:center;gap:8px;border:1px solid var(--line-2);background:none;padding:9px 10px;font-size:13px;font-weight:600;text-decoration:none;text-align:center;color:var(--ink)}
 .btn:hover{border-color:var(--bar)}
-.btn kbd{font:inherit;color:var(--dim);font-weight:500}
 .btn.pri{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
-.btn.pri kbd{color:inherit;opacity:.65}
 .btn.hot{border-color:var(--hot);color:var(--hot-ink)}
 .btn.hot:hover{background:var(--hot);color:#fff}
 .btn:disabled{opacity:.4;cursor:default}
-.btn.on{outline:2px solid var(--bar);outline-offset:-2px}
-.undo{margin-top:6px;width:100%}
-.msg{background:var(--head);border:1px solid var(--line);padding:10px 12px;font-size:13px;white-space:pre-wrap}
-.row2{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:6px}
-.kv{display:grid;grid-template-columns:110px 1fr;gap:4px 10px;font:500 11.5px "IBM Plex Mono",monospace;margin:0}
+.btn.on{outline:2px solid var(--bar);outline-offset:-2px;opacity:1}
+.undo{margin-top:8px;width:100%;color:var(--muted)}
+.msg{background:var(--head);border:1px solid var(--line);padding:11px 13px;white-space:pre-wrap}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
+.kv{display:grid;grid-template-columns:120px 1fr;gap:6px 12px;margin:0;font-size:13px}
 .kv dt{color:var(--dim)} .kv dd{margin:0;word-break:break-word}
-.empty{padding:28px 16px;color:var(--dim);font:500 12px "IBM Plex Mono",monospace;text-align:center}
+.empty{padding:28px 18px;color:var(--dim);text-align:center}
 .close{display:none}
 
-/* ---- coverage + log ---- */
-.covbar{display:inline-block;width:70px;height:6px;background:var(--bar-bg);vertical-align:middle}
+/* ---- areas + visits ---- */
+.covbar{display:inline-block;width:80px;height:6px;background:var(--bar-bg);vertical-align:middle}
 .covbar b{display:block;height:100%;background:var(--hot)}
-.log{font:500 11.5px "IBM Plex Mono",monospace}
-.log > div{display:grid;grid-template-columns:64px 104px minmax(0,1fr);gap:10px;padding:5px 12px;border-bottom:1px solid var(--line)}
+.log > div{display:grid;grid-template-columns:70px 150px minmax(0,1fr);gap:12px;padding:8px 14px;border-bottom:1px solid var(--line);align-items:baseline}
 .log > div.new{animation:flash 2.4s}
-.log .t{color:var(--dim)} .log .o{font-weight:700}
-.log .x{color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.log .t{color:var(--dim)} .log .o{font-weight:700;font-size:13px}
+.log .x{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.log .x small{color:var(--muted);font-size:12.5px}
 .o.has_terminal{color:var(--hot-ink)} .o.signed{color:var(--up)} .o.interested{color:var(--accent-t)} .o.not_now{color:var(--warn)}
 
 /* ---- health ---- */
 .kpis{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:1px;background:var(--line);border-bottom:1px solid var(--line);flex:none}
-.kpi{background:var(--panel);padding:12px 14px}
-.kpi .k{font:600 10.5px "IBM Plex Mono",monospace;letter-spacing:.1em;color:var(--dim)}
-.kpi .v{font:700 26px/1.2 "IBM Plex Mono",monospace;margin-top:4px}
+.kpi{background:var(--panel);padding:14px 16px}
+.kpi .k{color:var(--muted);font-size:13px}
+.kpi .v{font:700 28px/1.2 "IBM Plex Mono",monospace;margin-top:2px}
 .kpi .v.hot{color:var(--hot-ink)} .kpi .v.warn{color:var(--warn)} .kpi .v.acc{color:var(--accent-t)}
 .hv{flex:1;min-height:0}
-.pill{font:700 10.5px "IBM Plex Mono",monospace;letter-spacing:.06em;padding:2px 6px;border:1px solid currentColor}
+.pill{font-size:11.5px;font-weight:700;padding:2px 7px;border:1px solid currentColor;white-space:nowrap}
 .pill.At{color:var(--hot-ink)} .pill.Watch{color:var(--warn)} .pill.Healthy{color:var(--up)} .pill.New{color:var(--accent-t)}
 
 /* ---- status bar ---- */
-.status{display:flex;gap:16px;align-items:center;height:26px;padding:0 14px;background:var(--head);border-top:1px solid var(--line);font-size:11px;color:var(--muted);flex:none;white-space:nowrap;overflow:hidden}
-.status .dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--up);margin-right:6px}
+.status{display:flex;gap:18px;align-items:center;min-height:30px;padding:0 16px;background:var(--head);border-top:1px solid var(--line);font-size:12px;color:var(--muted);flex:none;white-space:nowrap;overflow:hidden}
+.status .dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--up);margin-right:6px}
 .status .dot.off{background:var(--warn)}
 .status .keys{margin-left:auto;color:var(--dim)}
-.status button{border:0;background:none;color:var(--muted);text-decoration:underline;padding:0;font-size:11px}
+.status button{border:0;background:none;color:var(--muted);text-decoration:underline;padding:0;font-size:12px}
 
-.toast{position:fixed;right:16px;bottom:38px;max-width:min(460px,calc(100vw - 32px));background:var(--panel);border:1px solid var(--line-2);border-left:4px solid var(--bar);color:var(--ink);padding:10px 14px;font:500 12px/1.45 "IBM Plex Mono",monospace;z-index:40;opacity:0;transform:translateY(8px);transition:.25s;pointer-events:none}
+.toast{position:fixed;right:16px;bottom:42px;max-width:min(460px,calc(100vw - 32px));background:var(--panel);border:1px solid var(--line-2);border-left:4px solid var(--bar);padding:11px 14px;font-size:13.5px;z-index:40;opacity:0;transform:translateY(8px);transition:.25s;pointer-events:none;box-shadow:0 8px 24px rgba(0,0,0,.25)}
 .toast.show{opacity:1;transform:none}
+
+@media (max-width:1500px){ .hide-xl{display:none} .biz{width:36%} .area{width:22%} }
 
 /* ---- tablet / phone ---- */
 @media (max-width:1100px){
@@ -189,38 +193,37 @@ tr.flash{animation:flash 2.4s}
   .desk{display:flex;flex-direction:column;gap:0;background:none}
   .panel{border-bottom:1px solid var(--line)}
   .scroll{overflow:visible}
-  .p-cov .scroll,.p-log .scroll{max-height:300px;overflow:auto}
+  .p-cov .scroll,.p-log .scroll{max-height:320px;overflow:auto}
   .p-detail{position:fixed;inset:0;z-index:30;transform:translateY(100%);transition:transform .28s cubic-bezier(.2,.8,.2,1);visibility:hidden;border:0}
   .p-detail.open{transform:none;visibility:visible}
   .p-detail .scroll{overflow:auto;padding-bottom:env(safe-area-inset-bottom)}
-  .close{display:block;border:0;background:none;color:var(--accent-t);font:600 12px "IBM Plex Mono",monospace;padding:0;margin-left:auto}
+  .close{display:block;border:0;background:none;color:var(--accent-t);font-weight:600;padding:0;margin-left:auto}
   body.sheet{overflow:hidden}
   .hide-md{display:none}
+  .biz{width:auto}
   .kpis{grid-template-columns:repeat(3,minmax(0,1fr))}
-  thead th{top:0}
 }
 @media (max-width:640px){
-  .top{gap:8px;padding:0 10px}
+  .top{gap:10px;padding:0 12px}
   .brand small,.clock{display:none}
   .tabs{margin-left:auto}
-  .tabs button{padding:6px 7px}
-  .tabs button kbd{display:none}
-  .cmd{flex-wrap:wrap;gap:8px;padding:8px 10px}
+  .tabs button{padding:12px 6px;font-size:13.5px}
+  .cmd{flex-wrap:wrap;gap:8px;padding:10px 12px}
   .seg{width:100%}
-  .seg > .k{width:58px;flex:none}
+  .seg > .cap{width:62px;flex:none}
   .search{margin-left:0;width:100%;min-width:0}
   .hide-sm{display:none}
-  .biz{width:auto}
   .kpis{grid-template-columns:1fr 1fr}
   .kpis .kpi:last-child{grid-column:1/-1}
   .status .keys{display:none}
-  .status{flex-wrap:wrap;height:auto;padding:8px 10px calc(8px + env(safe-area-inset-bottom));gap:6px 14px}
+  .status{flex-wrap:wrap;padding:8px 12px calc(8px + env(safe-area-inset-bottom));gap:6px 14px;white-space:normal}
   .toast{left:10px;right:10px;bottom:calc(12px + env(safe-area-inset-bottom))}
-  .log > div{grid-template-columns:58px minmax(0,1fr)}
+  .log > div{grid-template-columns:62px minmax(0,1fr)}
   .log .x{grid-column:1/-1}
+  .comp{grid-template-columns:minmax(0,1fr) 72px 58px}
   #healthTable thead{display:none}
   #healthTable,#healthTable tbody{display:block}
-  #healthTable tr{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:3px 10px;padding:10px 12px;border-bottom:1px solid var(--line)}
+  #healthTable tr{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:3px 10px;padding:11px 12px;border-bottom:1px solid var(--line)}
   #healthTable td{border:0;padding:0;text-align:left}
   #healthTable td.hm{display:none}
   #healthTable td.c1{grid-column:1;grid-row:1;white-space:normal}
@@ -232,13 +235,13 @@ tr.flash{animation:flash 2.4s}
 </head>
 <body>
 <header class="top">
-  <div class="brand"><b>Digi<span>Pos</span></b><small>LEAD RADAR</small></div>
+  <div class="brand"><b>Digi<span>Pos</span></b><small>Lead Radar</small></div>
   <nav class="tabs">
-    <button data-tab="leads" class="on"><kbd>L</kbd>LEADS</button>
-    <button data-tab="health"><kbd>H</kbd>HEALTH</button>
+    <button data-tab="leads" class="on">Leads</button>
+    <button data-tab="health">Merchant health</button>
   </nav>
   <div class="sp"></div>
-  <div class="clock" id="clock"></div>
+  <div class="clock num" id="clock"></div>
   <button class="icon-btn" id="theme" title="Switch light / dark" aria-label="Switch light or dark theme"></button>
 </header>
 <div class="ticker" id="ticker"></div>
@@ -246,25 +249,26 @@ tr.flash{animation:flash 2.4s}
 <main>
   <section class="view" id="leadsView">
     <div class="cmd">
-      <div class="seg"><span class="k">EMIRATE</span><div class="opts" id="emirates"></div></div>
-      <div class="seg"><span class="k">LANE</span><div class="opts" id="lanes"></div></div>
-      <label class="search"><span>/</span><input id="q" placeholder="SEARCH NAME OR AREA" autocomplete="off"></label>
+      <div class="seg"><span class="cap">Emirate</span><div class="opts" id="emirates"></div></div>
+      <div class="seg"><span class="cap">Type</span><div class="opts" id="lanes"></div></div>
+      <label class="search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg><input id="q" placeholder="Search business or area" autocomplete="off"></label>
     </div>
     <div class="desk">
       <section class="panel p-table">
-        <div class="ph"><span class="code">LDS</span>RANKED LEADS<span class="r" id="tableMeta"></span></div>
+        <div class="ph"><h2>Leads to visit</h2><span class="r" id="tableMeta"></span></div>
         <div class="scroll"><table id="leadTable"></table></div>
       </section>
       <section class="panel p-detail" id="detailPanel">
-        <div class="ph"><span class="code">DTL</span><span id="dtlHead">LEAD DETAIL</span><button class="close" data-close>CLOSE ✕</button></div>
-        <div class="scroll" id="detail"><div class="empty">SELECT A LEAD</div></div>
+        <div class="ph"><h2>Lead details</h2><button class="close" data-close>Close ✕</button></div>
+        <div class="scroll" id="detail"><div class="empty">Select a lead to see why it ranks where it does.</div></div>
       </section>
       <section class="panel p-cov">
-        <div class="ph"><span class="code">COV</span>AREA COVERAGE<span class="r hide-sm">HOW IT LEARNS: REP FINDS A TERMINAL → AREA +1 → NEIGHBOURS −6 PTS</span></div>
+        <div class="ph"><h2>Areas</h2></div>
+        <div class="note">When a rep finds a business that already has a terminal, the other leads in that area drop 6 points.</div>
         <div class="scroll"><table id="covTable"></table></div>
       </section>
       <section class="panel p-log">
-        <div class="ph"><span class="code">LOG</span>ACTIVITY<span class="r" id="logMeta"></span></div>
+        <div class="ph"><h2>Recent visits</h2><span class="r" id="logMeta"></span></div>
         <div class="scroll"><div class="log" id="log"></div></div>
       </section>
     </div>
@@ -273,7 +277,7 @@ tr.flash{animation:flash 2.4s}
   <section class="view" id="healthView" hidden>
     <div class="kpis" id="kpis"></div>
     <section class="panel hv">
-      <div class="ph"><span class="code">MHL</span>MERCHANT HEALTH<span class="r">SIMULATED · JUN→SEP ≤ −25% AT RISK · ≤ −10% WATCH</span></div>
+      <div class="ph"><h2>Merchant health</h2><span class="r">Simulated data · At risk = down 25%+ since June · Watch = down 10–25%</span></div>
       <div class="scroll"><table id="healthTable"></table></div>
     </section>
   </section>
@@ -283,13 +287,17 @@ tr.flash{animation:flash 2.4s}
 <div class="toast" id="toast"></div>
 
 <script>
-const EMIRATES = [["All","ALL"],["Dubai","DXB"],["Abu Dhabi","AUH"],["Sharjah","SHJ"],["Ajman","AJM"],["Umm Al Quwain","UAQ"],["Ras Al Khaimah","RAK"],["Fujairah","FUJ"]];
-const EM_CODE = Object.fromEntries(EMIRATES);
-const LANES = [["established","ESTABLISHED"],["new_opening","NEW OPENINGS"],["all","ALL"]];
-const PARTS = [["newness","NEWNESS","NEW",30],["size","SIZE PROXY","SIZE",25],["category","CATEGORY FIT","CAT",20],["location","LOCATION","LOC",15],["contact","CONTACT","CON",10]];
-const OUTCOMES = [["interested","INTERESTED","1","pri"],["not_now","NOT NOW","2",""],["has_terminal","HAS TERMINAL","3","hot"],["signed","SIGNED","4",""]];
-const ST = {interested:["INT","in"],not_now:["NOT NOW","no"],has_terminal:["HAS TERM","no"],signed:["SIGNED","st"]};
-const OUT_LABEL = {interested:"INTERESTED",not_now:"NOT NOW",has_terminal:"HAS TERMINAL",signed:"SIGNED"};
+const EMIRATES = ["All","Dubai","Abu Dhabi","Sharjah","Ajman","Umm Al Quwain","Ras Al Khaimah","Fujairah"];
+const LANES = [["established","Established"],["new_opening","New openings"],["all","All"]];
+const PARTS = [
+  ["newness","Newly opened","Recently opened businesses still need a terminal",30],
+  ["size","Business size","Based on review count and price level",25],
+  ["category","Fits card payments","How well this type of business suits a terminal",20],
+  ["location","Busy area","Lower when nearby businesses already have terminals",15],
+  ["contact","Easy to contact","Phone number and website listed",10]];
+const OUTCOMES = [["interested","Interested","pri"],["not_now","Not now",""],["has_terminal","Already has a terminal","hot"],["signed","Signed up",""]];
+const ST = {interested:["Interested","in"],not_now:["Not now","no"],has_terminal:["Has terminal","no"],signed:["Signed up","st"]};
+const OUT_LABEL = {interested:"Interested",not_now:"Not now",has_terminal:"Has terminal",signed:"Signed up"};
 
 const state = {emirate:"All", lane:"established", q:"", sort:{key:"score",dir:-1}, all:[], selected:null,
   deltas:{}, activity:[], logNotes:{}, logFresh:false, health:null, store:"", locked:false, flashCluster:null};
@@ -297,6 +305,7 @@ const $ = s => document.querySelector(s);
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const fmt = n => Number(n||0).toLocaleString("en-US");
 const aedK = n => "AED " + (n >= 1e6 ? (n/1e6).toFixed(2)+"M" : n >= 1e3 ? (n/1e3).toFixed(1)+"K" : n);
+const hm = d => new Intl.DateTimeFormat("en-GB",{timeZone:"Asia/Dubai",hour12:false,hour:"2-digit",minute:"2-digit"}).format(d);
 const hms = d => new Intl.DateTimeFormat("en-GB",{timeZone:"Asia/Dubai",hour12:false,hour:"2-digit",minute:"2-digit",second:"2-digit"}).format(d);
 const isNarrow = () => matchMedia("(max-width:1100px)").matches;
 const ls = (k, v) => { try{ if(v === undefined) return localStorage.getItem(k); localStorage.setItem(k, v); }catch(e){ return null; } };
@@ -336,8 +345,7 @@ function rows(){
   const rank = new Map(list.map((l,i) => [l.id, i+1]));
   const {key, dir} = state.sort;
   if(key !== "score"){
-    const val = l => key === "name" ? (l.business_name||"").toLowerCase()
-      : (l.score_parts && key in l.score_parts) ? l.score_parts[key] : (l[key] ?? -1);
+    const val = l => key === "name" ? (l.business_name||"").toLowerCase() : key === "area" ? (l.area||"").toLowerCase() : (l[key] ?? -1);
     list.sort((a,b) => (closed(a) - closed(b)) || (val(a) > val(b) ? dir : val(a) < val(b) ? -dir : 0));
   } else if(dir === 1) list.reverse();
   return {list, rank};
@@ -346,34 +354,31 @@ function rows(){
 /* ---------- render: chrome ---------- */
 function renderTicker(){
   const all = state.all, open = all.filter(l => !closed(l));
-  const by = e => all.filter(l => l.emirate === e).length;
-  const top = open.filter(l => !l.is_example).sort((a,b) => b.score - a.score)[0];
   const avg = open.length ? Math.round(open.reduce((s,l) => s + l.score, 0) / open.length) : 0;
   const terms = all.filter(l => l.status === "has_terminal").length;
+  const signed = all.filter(l => l.status === "signed").length;
   const h = state.health?.summary;
-  const t = (k, v, c="") => `<div class="tick"><span class="k">${k}</span><span class="v ${c}">${v}</span></div>`;
+  const t = (k, v, c="") => `<div class="tick"><span class="k">${k}</span><span class="v num ${c}">${v}</span></div>`;
   $("#ticker").innerHTML =
-    t("LEADS", all.length) + t("OPEN", open.length, "acc") +
-    t("DXB", by("Dubai")) + t("AUH", by("Abu Dhabi")) + t("SHJ", by("Sharjah")) + t("AJM", by("Ajman")) + t("RAK", by("Ras Al Khaimah")) +
-    t("AVG SCORE", avg) + (top ? t("TOP REAL", esc(top.business_name.toUpperCase()) + " · " + top.score, "acc") : "") +
-    t("TERMINALS FOUND", terms, terms ? "hot" : "") +
-    (h ? t("AT RISK", h.at_risk, "hot") + t("WATCH", h.watch, "warn") + t("VOL AT RISK", aedK(h.volume_at_risk_sep), "hot") : "");
+    t("Leads", all.length) + t("Still to visit", open.length, "acc") + t("Average score", avg) +
+    t("Terminals found", terms, terms ? "hot" : "") + t("Signed up", signed, signed ? "acc" : "") +
+    (h ? t("Merchants at risk", h.at_risk, "hot") + t("Volume at risk", aedK(h.volume_at_risk_sep), "hot") : "");
 }
 function renderStatus(){
   const real = state.all.filter(l => !l.is_example).length, ex = state.all.length - real;
   const off = state.store !== "SupabaseStore";
   $("#status").innerHTML = `
-    <span><i class="dot ${off?"off":""}"></i>${off ? "OFFLINE · LOCAL DATA" : "SUPABASE · LIVE"}${state.locked ? " · LOCKED" : ""}</span>
-    <span>DATA 17 OCT 2026</span>
-    <span>${real} REAL · ${ex} EXAMPLE · ${state.health?.summary.tracked ?? 30} SIMULATED MERCHANTS</span>
-    <span class="keys">J/K MOVE · 1–4 LOG · U UNDO · / SEARCH · L/H VIEWS</span>
-    <button id="reset">RESET DEMO</button>`;
+    <span><i class="dot ${off?"off":""}"></i>${off ? "Offline copy" : "Live data"}${state.locked ? " · locked" : ""}</span>
+    <span>Leads collected 17 Oct 2026</span>
+    <span>${real} real businesses · ${ex} example rows · ${state.health?.summary.tracked ?? 30} simulated merchants</span>
+    <span class="keys">Shortcuts: ↑ ↓ move · 1–4 log visit · U undo · / search</span>
+    <button id="reset">Reset demo</button>`;
 }
 function renderFilters(){
   const base = state.all.filter(l => state.lane === "all" || l.lane === state.lane);
-  $("#emirates").innerHTML = EMIRATES.map(([e,code]) => {
+  $("#emirates").innerHTML = EMIRATES.map(e => {
     const n = e === "All" ? base.length : base.filter(l => l.emirate === e).length;
-    return `<button class="${state.emirate===e?"on":""}" data-em="${e}" title="${e}">${code}<span class="n">${n}</span></button>`;
+    return `<button class="${state.emirate===e?"on":""}" data-em="${e}">${e}<span class="n">${n}</span></button>`;
   }).join("");
   $("#lanes").innerHTML = LANES.map(([k,label]) => `<button class="${state.lane===k?"on":""}" data-lane="${k}">${label}</button>`).join("");
 }
@@ -384,31 +389,31 @@ function renderTable(animate){
   if(animate) document.querySelectorAll("#leadTable tbody tr[data-id]").forEach(tr => before[tr.dataset.id] = tr.getBoundingClientRect().top);
   const {list, rank} = rows();
   const {key, dir} = state.sort;
-  const th = (k, label, cls="") => `<th class="${cls} ${k && key===k ? "sorted" : ""}" ${k ? `data-sort="${k}"` : ""}>${label}${k && key===k ? (dir<0 ? " ▼" : " ▲") : ""}</th>`;
-  $("#tableMeta").innerHTML = `${list.length} SHOWN${list.some(l => l.is_example) ? ` · <span class="ex">EX = EXAMPLE FORMAT, NOT A REAL BUSINESS</span>` : ""}`;
+  const th = (k, label, cls="") => `<th class="${cls} ${k && key===k ? "sorted" : ""}" ${k ? `data-sort="${k}" title="Sort by ${label.toLowerCase()}"` : ""}>${label}${k && key===k ? (dir<0 ? " ↓" : " ↑") : ""}</th>`;
+  $("#tableMeta").innerHTML = `${list.length} shown · highest score first${list.some(l => l.is_example) ? ` · <span class="ex">“Example” rows are not real businesses</span>` : ""}`;
   if(!list.length){
-    $("#leadTable").innerHTML = `<tbody><tr><td class="l"><div class="empty">NO LEADS MATCH${state.emirate !== "All" ? " · ADD ROWS FOR " + esc(state.emirate.toUpperCase()) + " IN THE SHEET" : ""}</div></td></tr></tbody>`;
+    $("#leadTable").innerHTML = `<tbody><tr><td class="l"><div class="empty">No leads here yet${state.emirate !== "All" ? " — add rows for " + esc(state.emirate) + " in the spreadsheet" : ""}.</div></td></tr></tbody>`;
     return;
   }
-  $("#leadTable").innerHTML = `<thead><tr>${th("", "#", "rk")}${th("name","BUSINESS","l")}` +
-    PARTS.map(([k,,s]) => th(k, s, "hide-md")).join("") +
-    th("rating","★","hide-md") + th("review_count","REVS","hide-md") + th("score","SCORE") + th("","Δ") + `</tr></thead><tbody>` +
+  $("#leadTable").innerHTML = `<thead><tr>${th("", "#", "rk")}${th("name","Business","l")}${th("area","Area","l hide-md")}${th("","Why it ranks here","l hide-xl hide-md")}${th("rating","Rating","hide-md")}${th("score","Score")}${th("","Change")}</tr></thead><tbody>` +
     list.map(l => {
-      const d = state.deltas[l.id], p = l.score_parts || {};
-      const tags = (l.is_example ? `<span class="tg ex">EX</span>` : "") +
-        (l.lane === "new_opening" && !l.is_example ? `<span class="tg nw">NEW?</span>` : "") +
+      const d = state.deltas[l.id];
+      const tags = (l.is_example ? `<span class="tg ex">Example</span>` : "") +
+        (l.lane === "new_opening" && !l.is_example ? `<span class="tg nw">New? (unverified)</span>` : "") +
         (l.status !== "open" ? `<span class="tg ${ST[l.status][1]}">${ST[l.status][0]}</span>` : "");
       const delta = d ? d.to - d.from : 0;
       return `<tr data-id="${l.id}" class="${state.selected===l.id?"sel":""} ${closed(l)?"closed":""} ${d?"flash":""}">
-        <td class="rk">${rank.get(l.id)}</td>
-        <td class="l biz"><div class="nm">${esc(l.business_name)}${tags}</div><div class="sb">${esc(l.category)} · ${esc(l.area)} · ${EM_CODE[l.emirate] || esc(l.emirate)}</div></td>
-        ${PARTS.map(([k,,,w]) => `<td class="cp hide-md">${p[k] ?? 0}<i><b style="width:${(p[k]||0)/w*100}%"></b></i></td>`).join("")}
-        <td class="hide-md nw-col ${l.rating ? "" : "mut"}">${l.rating ?? "—"}</td>
-        <td class="hide-md rv ${l.review_count ? "" : "mut"}">${l.review_count ? fmt(l.review_count) : "—"}</td>
-        <td class="sc">${l.score}</td>
-        <td class="dl ${delta<0 ? "dn" : delta>0 ? "up" : "mut"}">${delta ? (delta>0 ? "▲" : "▼") + Math.abs(delta) : "—"}</td>
+        <td class="rk num">${rank.get(l.id)}</td>
+        <td class="l biz"><div class="nm">${esc(l.business_name)}${tags}</div><div class="sb">${esc(l.category)}<span class="hide-sm-inline"> · ${esc(l.area)}, ${esc(l.emirate)}</span></div></td>
+        <td class="l area hide-md">${esc(l.area)}, ${esc(l.emirate)}</td>
+        <td class="l why hide-xl hide-md"><span>${esc(l.reason)}</span></td>
+        <td class="rt num hide-md ${l.rating ? "" : "mut"}">${l.rating ? l.rating + " ★" : "—"}</td>
+        <td class="sc num"><span class="sv">${l.score}</span><i><b style="width:${l.score}%"></b></i></td>
+        <td class="dl num ${delta<0 ? "dn" : delta>0 ? "up" : "mut"}">${delta ? (delta>0 ? "▲ " : "▼ ") + Math.abs(delta) : "—"}</td>
       </tr>`;
     }).join("") + "</tbody>";
+  // On wide screens the Area column exists, so drop the repeated area from the business line.
+  if(!isNarrow()) document.querySelectorAll("#leadTable .hide-sm-inline").forEach(e => e.remove());
   if(animate){
     document.querySelectorAll("#leadTable tbody tr[data-id]").forEach(tr => {
       const old = before[tr.dataset.id]; if(old === undefined) return;
@@ -422,62 +427,66 @@ function renderTable(animate){
 function renderDetail(){
   const l = state.all.find(x => x.id === state.selected && inView(x));
   const box = $("#detail");
-  if(!l){ $("#dtlHead").textContent = "LEAD DETAIL"; box.innerHTML = `<div class="empty">SELECT A LEAD · J/K TO MOVE</div>`; closeSheet(); return; }
+  if(!l){ box.innerHTML = `<div class="empty">Select a lead to see why it ranks where it does.</div>`; closeSheet(); return; }
   const list = ranked();
-  $("#dtlHead").textContent = `${l.id} · RANK ${list.findIndex(x => x.id === l.id) + 1}/${list.length}`;
   const p = l.score_parts || {}, d = state.deltas[l.id];
   const wa = "https://wa.me/?text=" + encodeURIComponent(l.draft_message || "");
-  const lane = l.lane === "new_opening" ? (l.is_example ? "new opening (example)" : "new opening, unverified") : "established";
+  const lane = l.lane === "new_opening" ? (l.is_example ? "New opening (example)" : "Possible new opening, not yet verified") : "Established business";
   box.innerHTML = `<div class="dt">
-    ${l.is_example ? `<div class="exnote">EXAMPLE FORMAT · NOT A REAL BUSINESS</div>` : ""}
-    <h2>${esc(l.business_name)}</h2>
-    <div class="sub">${esc(l.category)} · ${esc(l.area)} · ${esc(l.emirate)} · ${lane}</div>
-    <div class="scoreline"><span class="big">${l.score}</span><span class="of">/100</span>
-      ${d ? `<span class="chg ${d.to < d.from ? "dn" : "up"}">${d.to < d.from ? "▼" : "▲"}${Math.abs(d.to - d.from)} FROM ${d.from}</span>` : ""}
+    ${l.is_example ? `<div class="exnote">Example row showing the licence-data format. Not a real business.</div>` : ""}
+    <h3>${esc(l.business_name)}</h3>
+    <div class="sub">${esc(l.category)} · ${esc(l.area)}, ${esc(l.emirate)}</div>
+    <div class="scoreline"><span class="big">${l.score}</span><span class="of">out of 100</span>
+      ${d ? `<span class="chg ${d.to < d.from ? "dn" : "up"}">${d.to < d.from ? "▼" : "▲"} ${Math.abs(d.to - d.from)} from ${d.from}</span>` : ""}
       ${l.status !== "open" ? `<span class="tg ${ST[l.status][1]}">${ST[l.status][0]}</span>` : ""}</div>
+    <div class="rankline">Ranked #${list.findIndex(x => x.id === l.id) + 1} of ${list.length} in this view · ${lane}</div>
     <div class="reason">${esc(l.reason)}</div>
-    <div class="sect">SCORE BREAKDOWN</div>
-    ${PARTS.map(([k,label,,w]) => `<div class="comp"><span class="lb">${label}</span><span class="br"><b style="width:${(p[k]||0)/w*100}%"></b></span><span class="vv">${p[k]||0}/${w}</span></div>`).join("")}
-    ${p.signal ? `<div class="comp"><span class="lb">REVIEW SIGNAL</span><span></span><span class="vv ${p.signal < 0 ? "dn" : "up"}">${p.signal > 0 ? "+" : ""}${p.signal}</span></div>` : ""}
-    <div class="sect">LOG VISIT OUTCOME</div>
-    <div class="acts">${OUTCOMES.map(([k,label,key,cls]) => `<button class="btn ${cls} ${l.status===k ? "on" : ""}" data-outcome="${k}" ${l.status===k ? "disabled" : ""}><kbd>${key}</kbd>${label}</button>`).join("")}</div>
-    <button class="btn undo" data-undo ${state.activity.length ? "" : "disabled"}><kbd>U</kbd>UNDO LAST ACTION</button>
-    <div class="sect">WHATSAPP DRAFT · PRE-WRITTEN</div>
+
+    <div class="sect">How the score is built</div>
+    ${PARTS.map(([k,label,hint,w]) => `<div class="comp"><span class="lb">${label}</span><span class="br"><b style="width:${(p[k]||0)/w*100}%"></b></span><span class="vv num">${p[k]||0} / ${w}</span><span class="hint">${hint}</span></div>`).join("")}
+    ${p.signal ? `<div class="comp"><span class="lb">Review signal</span><span></span><span class="vv num ${p.signal < 0 ? "dn" : "up"}">${p.signal > 0 ? "+" : ""}${p.signal}</span><span class="hint">${p.signal < 0 ? "Reviews suggest cards are already accepted" : "Reviews mention cash only"}</span></div>` : ""}
+
+    <div class="sect">What happened at the visit?</div>
+    <div class="acts">${OUTCOMES.map(([k,label,cls]) => `<button class="btn ${cls} ${l.status===k ? "on" : ""}" data-outcome="${k}" ${l.status===k ? "disabled" : ""}>${l.status===k ? "✓ " : ""}${label}</button>`).join("")}</div>
+    <button class="btn undo" data-undo ${state.activity.length ? "" : "disabled"}>↶ Undo last action</button>
+
+    <div class="sect">WhatsApp message (ready to send)</div>
     <div class="msg">${esc(l.draft_message)}</div>
-    <div class="row2"><button class="btn" data-copy>COPY</button><a class="btn" href="${wa}" target="_blank" rel="noopener">OPEN IN WHATSAPP</a></div>
-    <div class="sect">SOURCE</div>
+    <div class="row2"><button class="btn" data-copy>Copy</button><a class="btn" href="${wa}" target="_blank" rel="noopener">Open in WhatsApp</a></div>
+
+    <div class="sect">Details</div>
     <dl class="kv">
-      <dt>RATING</dt><dd>${l.rating ? `${l.rating} ★ · ${fmt(l.review_count)} reviews` : "—"}</dd>
-      <dt>PHONE</dt><dd>${l.has_phone ? "Listed" : "Not listed"}</dd>
-      <dt>OWNERSHIP</dt><dd>${esc(l.chain_check || "—")}</dd>
-      <dt>CARD SIGNAL</dt><dd>${esc(l.card_signal_note || "—")}</dd>
-      ${l.licence_issue_date ? `<dt>LICENCE DATE</dt><dd>${esc(l.licence_issue_date)}</dd>` : ""}
-      <dt>COLLECTED</dt><dd>${esc(l.date_collected || "—")}</dd>
-      <dt>LINKS</dt><dd>${l.maps_link ? `<a href="${esc(l.maps_link)}" target="_blank" rel="noopener">Google Maps</a>` : "—"}${l.website ? ` · <a href="${esc(l.website)}" target="_blank" rel="noopener">Website</a>` : ""}</dd>
+      <dt>Google rating</dt><dd>${l.rating ? `${l.rating} ★ from ${fmt(l.review_count)} reviews` : "—"}</dd>
+      <dt>Phone</dt><dd>${l.has_phone ? "Listed" : "Not listed"}</dd>
+      <dt>Ownership</dt><dd>${esc(l.chain_check || "—")}</dd>
+      <dt>Card payments</dt><dd>${esc(l.card_signal_note || "—")}</dd>
+      ${l.licence_issue_date ? `<dt>Licence issued</dt><dd>${esc(l.licence_issue_date)}</dd>` : ""}
+      <dt>Collected</dt><dd>${esc(l.date_collected || "—")}</dd>
+      <dt>Links</dt><dd>${l.maps_link ? `<a href="${esc(l.maps_link)}" target="_blank" rel="noopener">Google Maps</a>` : "—"}${l.website ? ` · <a href="${esc(l.website)}" target="_blank" rel="noopener">Website</a>` : ""}</dd>
     </dl></div>`;
 }
 
-/* ---------- render: coverage + log ---------- */
+/* ---------- render: areas + visits ---------- */
 function renderCoverage(){
   const by = {};
   state.all.filter(l => state.emirate === "All" || l.emirate === state.emirate).forEach(l => {
-    const c = by[l.cluster] ||= {cluster:l.cluster, em:l.emirate, n:0, open:0, term:0, sum:0};
-    c.n++; if(!closed(l)){ c.open++; c.sum += l.score; } if(l.status === "has_terminal") c.term++;
+    const c = by[l.cluster] ||= {cluster:l.cluster, em:l.emirate, n:0, term:0};
+    c.n++; if(l.status === "has_terminal") c.term++;
   });
   const list = Object.values(by).sort((a,b) => b.term - a.term || b.n - a.n || a.cluster.localeCompare(b.cluster));
-  $("#covTable").innerHTML = `<thead><tr><th class="l">AREA</th><th>EMI</th><th>LEADS</th><th>OPEN</th><th>TERM</th><th>AVG</th><th class="l hide-sm">COVERAGE</th></tr></thead><tbody>` +
+  $("#covTable").innerHTML = `<thead><tr><th class="l">Area</th><th class="l hide-sm">Emirate</th><th>Leads</th><th>Terminals found</th><th class="l hide-sm"></th></tr></thead><tbody>` +
     list.map(c => `<tr class="${state.flashCluster === c.cluster ? "flash" : ""}">
-      <td class="l">${esc(c.cluster)}</td><td class="mut">${EM_CODE[c.em] || ""}</td><td>${c.n}</td><td>${c.open}</td>
-      <td class="${c.term ? "dn" : "mut"}">${c.term}</td><td>${c.open ? Math.round(c.sum / c.open) : "—"}</td>
+      <td class="l">${esc(c.cluster)}</td><td class="l mut hide-sm">${esc(c.em)}</td><td class="num">${c.n}</td>
+      <td class="num ${c.term ? "dn" : "mut"}">${c.term}</td>
       <td class="l hide-sm"><span class="covbar"><b style="width:${c.n ? c.term / c.n * 100 : 0}%"></b></span></td></tr>`).join("") + "</tbody>";
 }
 function renderLog(){
   const a = state.activity;
-  $("#logMeta").textContent = a.length ? `${a.length} VISIT${a.length > 1 ? "S" : ""} LOGGED` : "";
-  if(!a.length){ $("#log").innerHTML = `<p class="empty">NO VISITS LOGGED YET · SELECT A LEAD, PRESS 1–4</p>`; return; }
+  $("#logMeta").textContent = a.length ? `${a.length} logged` : "";
+  if(!a.length){ $("#log").innerHTML = `<p class="empty">No visits logged yet. Open a lead and choose what happened at the visit.</p>`; return; }
   $("#log").innerHTML = a.map((v,i) => {
-    const note = state.logNotes[v.id] || (v.outcome === "has_terminal" ? `${esc(v.cluster)} coverage +1` : "");
-    return `<div class="${i === 0 && state.logFresh ? "new" : ""}"><span class="t">${v.at ? hms(new Date(v.at)) : ""}</span><span class="o ${v.outcome}">${OUT_LABEL[v.outcome]}</span><span class="x">${esc(v.name)} <span class="mut">${v.lead_id}</span>${note ? " → " + note : ""}</span></div>`;
+    const note = state.logNotes[v.id] || (v.outcome === "has_terminal" ? `other leads in ${esc(v.cluster)} moved down` : "");
+    return `<div class="${i === 0 && state.logFresh ? "new" : ""}"><span class="t num">${v.at ? hm(new Date(v.at)) : ""}</span><span class="o ${v.outcome}">${OUT_LABEL[v.outcome]}</span><span class="x">${esc(v.name)}${note ? ` <small>→ ${note}</small>` : ""}</span></div>`;
   }).join("");
   state.logFresh = false;
 }
@@ -494,18 +503,18 @@ function renderHealth(){
   const j = state.health; if(!j) return;
   const s = j.summary;
   const k = (label, v, c="") => `<div class="kpi"><div class="k">${label}</div><div class="v ${c}">${v}</div></div>`;
-  $("#kpis").innerHTML = k("MERCHANTS TRACKED", s.tracked, "acc") + k("AT RISK", s.at_risk, "hot") + k("WATCH", s.watch, "warn") + k("NEW · RAMP-UP", s.new) + k("SEP VOLUME AT RISK", aedK(s.volume_at_risk_sep), "hot");
+  $("#kpis").innerHTML = k("Merchants tracked", s.tracked, "acc") + k("At risk", s.at_risk, "hot") + k("Watch", s.watch, "warn") + k("New (first months)", s.new) + k("September volume at risk", aedK(s.volume_at_risk_sep), "hot");
   const pct = c => c == null ? "—" : (Math.round(c*100) > 0 ? "+" : "") + String(Math.round(c*100)).replace("-0","0") + "%";
-  $("#healthTable").innerHTML = `<thead><tr><th class="l">MERCHANT</th><th class="l">CATEGORY</th><th class="l">AREA</th><th>TERM</th><th class="l">APR–SEP</th><th>SEP VOLUME</th><th>JUN→SEP</th><th class="l">STATUS</th><th class="l">NEXT ACTION</th></tr></thead><tbody>` +
+  $("#healthTable").innerHTML = `<thead><tr><th class="l">Merchant</th><th class="l">Type</th><th class="l">Area</th><th>Terminals</th><th class="l">Apr–Sep trend</th><th>Sep volume (AED)</th><th>Change since June</th><th class="l">Status</th><th class="l">Next step</th></tr></thead><tbody>` +
     j.merchants.map(m => `<tr>
-      <td class="l c1" style="font-family:'IBM Plex Sans',sans-serif;font-weight:600">${esc(m.name)}</td>
+      <td class="l c1" style="font-weight:600">${esc(m.name)}</td>
       <td class="l hm">${esc(m.category)}</td>
-      <td class="l hm">${esc(m.area)} · ${EM_CODE[m.emirate] || esc(m.emirate)}</td>
-      <td class="hm">${m.terminals}</td>
+      <td class="l hm">${esc(m.area)}, ${esc(m.emirate)}</td>
+      <td class="hm num">${m.terminals}</td>
       <td class="l hm">${spark(m)}</td>
-      <td class="hm">${m.vol_sep != null ? fmt(m.vol_sep) : "—"}</td>
-      <td class="c7 ${m.change_jun_to_sep <= -0.1 ? "dn" : m.change_jun_to_sep > 0 ? "up" : ""}">${pct(m.change_jun_to_sep)}</td>
-      <td class="l c8"><span class="pill ${m.status.split(" ")[0]}">${m.status.toUpperCase()}</span></td>
+      <td class="hm num">${m.vol_sep != null ? fmt(m.vol_sep) : "—"}</td>
+      <td class="c7 num ${m.change_jun_to_sep <= -0.1 ? "dn" : m.change_jun_to_sep > 0 ? "up" : ""}">${pct(m.change_jun_to_sep)}</td>
+      <td class="l c8"><span class="pill ${m.status.split(" ")[0]}">${m.status}</span></td>
       <td class="l c9">${esc(m.suggested_action)}</td></tr>`).join("") + "</tbody>";
 }
 
@@ -539,13 +548,13 @@ async function logOutcome(outcome){
     applyMoves(res);
     await Promise.all([loadLeads(), loadActivity()]);
     if(state.activity[0]) state.logNotes[state.activity[0].id] = res.moved.length
-      ? `${esc(res.cluster)} coverage +1 · ${res.moved.length} re-ranked` : (outcome === "has_terminal" ? `${esc(res.cluster)} coverage +1` : "");
+      ? `${res.moved.length} nearby lead${res.moved.length > 1 ? "s" : ""} in ${esc(res.cluster)} moved down` : "";
     state.logFresh = true;
     if(isNarrow()) closeSheet();
     renderAll(true);
     toast(res.moved.length
-      ? `${OUT_LABEL[outcome]} · ${l.business_name}. ${res.moved.length} nearby lead${res.moved.length > 1 ? "s" : ""} in ${res.cluster} re-ranked down: that area now has more terminal coverage.`
-      : `${OUT_LABEL[outcome]} · ${l.business_name}`);
+      ? `Logged “${OUT_LABEL[outcome]}” for ${l.business_name}. ${res.moved.length} nearby lead${res.moved.length > 1 ? "s" : ""} in ${res.cluster} moved down, because that area now has terminal coverage.`
+      : `Logged “${OUT_LABEL[outcome]}” for ${l.business_name}.`);
   }catch(e){ toast("Could not save: " + e.message); renderDetail(); }
   busy = false;
 }
@@ -557,7 +566,7 @@ async function undo(){
     applyMoves(res);
     await Promise.all([loadLeads(), loadActivity()]);
     renderAll(true);
-    toast(`Undid ${OUT_LABEL[res.undone.outcome]} on ${res.undone.name}${res.moved.length ? ` · ${res.moved.length} leads restored` : ""}`);
+    toast(`Undid “${OUT_LABEL[res.undone.outcome]}” for ${res.undone.name}${res.moved.length ? `. ${res.moved.length} leads moved back up.` : "."}`);
   }catch(e){ toast("Could not undo: " + e.message); }
   busy = false;
 }
@@ -567,7 +576,7 @@ async function reset(){
     await api("reset", {method:"POST"});
     state.deltas = {}; state.flashCluster = null; state.logNotes = {};
     await Promise.all([loadLeads(), loadActivity()]);
-    renderAll(); toast("Demo reset · original ranking restored");
+    renderAll(); toast("Demo reset. Original ranking restored.");
   }catch(e){ toast("Could not reset: " + e.message); }
 }
 
@@ -588,7 +597,7 @@ $("#theme").onclick = () => {
   document.documentElement.dataset.theme = next; ls("theme", next); paintTheme();
 };
 paintTheme();
-const tickClock = () => $("#clock").textContent = "DUBAI " + hms(new Date()) + " GST";
+const tickClock = () => $("#clock").textContent = "Dubai " + hms(new Date());
 tickClock(); setInterval(tickClock, 1000);
 
 /* ---------- events ---------- */
@@ -597,7 +606,7 @@ document.addEventListener("click", e => {
   if(t.matches("tr[data-id]")) return select(t.dataset.id, true);
   if(t.matches("th[data-sort]")){
     const k = t.dataset.sort;
-    state.sort = state.sort.key === k ? {key:k, dir:-state.sort.dir} : {key:k, dir: k === "name" ? 1 : -1};
+    state.sort = state.sort.key === k ? {key:k, dir:-state.sort.dir} : {key:k, dir: (k === "name" || k === "area") ? 1 : -1};
     return renderTable();
   }
   if(t.dataset.em || t.dataset.lane){
@@ -612,7 +621,7 @@ document.addEventListener("click", e => {
   if(t.hasAttribute("data-close")) return closeSheet();
   if(t.hasAttribute("data-copy")){
     const l = state.all.find(x => x.id === state.selected);
-    return navigator.clipboard?.writeText(l.draft_message).then(() => toast("Draft copied"));
+    return navigator.clipboard?.writeText(l.draft_message).then(() => toast("Message copied."));
   }
   if(t.dataset.tab) return showTab(t.dataset.tab);
   if(t.id === "reset") return reset();
@@ -622,14 +631,12 @@ document.addEventListener("keydown", e => {
   if(e.target.matches("input")){ if(e.key === "Escape"){ e.target.value = ""; state.q = ""; e.target.blur(); renderTable(); } return; }
   if(e.metaKey || e.ctrlKey || e.altKey) return;
   if(e.key === "Escape") return closeSheet();
-  if(e.key === "h" || e.key === "H") return showTab("health");
-  if(e.key === "l" || e.key === "L") return showTab("leads");
   if($("#leadsView").hidden) return;
   if(e.key === "j" || e.key === "ArrowDown"){ e.preventDefault(); return move(1); }
   if(e.key === "k" || e.key === "ArrowUp"){ e.preventDefault(); return move(-1); }
   if(e.key === "/"){ e.preventDefault(); return $("#q").focus(); }
   if(e.key === "u" || e.key === "U") return undo();
-  const o = OUTCOMES.find(x => x[2] === e.key); if(o) return logOutcome(o[0]);
+  const o = OUTCOMES[Number(e.key) - 1]; if(o) return logOutcome(o[0]);
 });
 
 /* ---------- boot ---------- */
@@ -640,7 +647,7 @@ document.addEventListener("keydown", e => {
     if(!isNarrow()){ const {list} = rows(); if(list.length) state.selected = list[0].id; }
     renderAll();
   }catch(e){
-    $("#leadTable").innerHTML = `<tbody><tr><td class="l"><div class="empty" style="color:var(--hot-ink)">COULD NOT LOAD: ${esc(e.message)}</div></td></tr></tbody>`;
+    $("#leadTable").innerHTML = `<tbody><tr><td class="l"><div class="empty" style="color:var(--hot-ink)">Could not load leads: ${esc(e.message)}</div></td></tr></tbody>`;
   }
 })();
 </script>

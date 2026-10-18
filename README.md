@@ -73,7 +73,7 @@ Every number is an assumption, kept in config dictionaries so it's easy to chang
 
 ## 90-second demo path
 
-Keyboard: `J`/`K` move, `1`–`4` log an outcome, `U` undo, `/` search, `L`/`H` switch views.
+Keyboard: ↑/↓ (or J/K) move, `1`–`4` log a visit outcome, `U` undo, `/` search.
 
 1. **Leads** tab, then **Dubai**. Show the ranked list.
 2. Click **Art of Teeth Dental Clinic** (Al Barsha). Show the score breakdown, the reason and the WhatsApp draft.

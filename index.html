@@ -10,18 +10,18 @@
 <style>
 /* Digipos brand: royal #052D8B · indigo #0A0458 · logo blue #0062C1 · cyan #2CB8EA · red #E02B20 */
 :root,:root[data-theme="dark"]{
-  --bg:#03051c; --panel:#060a2a; --head:#0a1140; --line:#151d55; --line-2:#222c78;
-  --ink:#eef1ff; --muted:#a9b1e0; --dim:#7880b8;
-  --accent:#2cb8ea; --accent-ink:#03122a; --brand:#0062c1; --sel:#0c1856; --hover:#09103a;
+  --bg:#08080a; --panel:#0e0e10; --head:#141416; --line:#232327; --line-2:#303036;
+  --ink:#f2f2f4; --muted:#ababb3; --dim:#76767f;
+  --accent:#2cb8ea; --accent-ink:#04121c; --brand:#0062c1; --sel:rgba(44,184,234,.10); --hover:#151518;
   --hot:#e02b20; --hot-ink:#ff6d63; --up:#35d07f; --warn:#f2b33d; --ex:#b9a6ff;
-  --bar-bg:#121a4d; color-scheme:dark;
+  --bar-bg:#26262b; --top:#000000; color-scheme:dark;
 }
 :root[data-theme="light"]{
-  --bg:#eef1f8; --panel:#ffffff; --head:#f4f6fc; --line:#dfe4f2; --line-2:#c7cfe8;
-  --ink:#0a0e3a; --muted:#3f4778; --dim:#6b7299;
-  --accent:#0062c1; --accent-ink:#ffffff; --brand:#052d8b; --sel:#e2ebfb; --hover:#f3f6fd;
+  --bg:#f5f5f6; --panel:#ffffff; --head:#fafafa; --line:#e6e6e9; --line-2:#d3d3d8;
+  --ink:#111114; --muted:#52525b; --dim:#86868f;
+  --accent:#0062c1; --accent-ink:#ffffff; --brand:#052d8b; --sel:#ebf3fd; --hover:#f7f8fa;
   --hot:#e02b20; --hot-ink:#c41f16; --up:#11804a; --warn:#a86400; --ex:#5b3fa8;
-  --bar-bg:#e6eaf5; color-scheme:light;
+  --bar-bg:#ebebee; --top:#ffffff; color-scheme:light;
 }
 *{box-sizing:border-box}
 html,body{height:100%}
@@ -30,20 +30,20 @@ button,input,table,.ph,.tick,.status{font-family:"IBM Plex Mono",ui-monospace,Me
 button{font-size:inherit;cursor:pointer;color:inherit}
 a{color:var(--accent)}
 
-/* ---- top bar (brand gradient) ---- */
-.top{display:flex;align-items:center;gap:14px;height:44px;padding:0 14px;background:linear-gradient(90deg,#0a0458 0%,#052d8b 70%,#0062c1 100%);color:#fff;flex:none}
+/* ---- top bar ---- */
+.top{display:flex;align-items:center;gap:14px;height:44px;padding:0 14px;background:var(--top);color:var(--ink);border-bottom:2px solid var(--accent);flex:none}
 .brand{display:flex;align-items:baseline;gap:10px;white-space:nowrap}
 .brand b{font:700 17px/1 "IBM Plex Sans",sans-serif;letter-spacing:.02em}
-.brand b span{color:#2cb8ea}
-.brand small{font:500 11px "IBM Plex Mono",monospace;letter-spacing:.14em;opacity:.75}
+.brand b span{color:var(--accent)}
+.brand small{font:500 11px "IBM Plex Mono",monospace;letter-spacing:.14em;color:var(--muted)}
 .tabs{display:flex;gap:2px;margin-left:12px}
-.tabs button{border:0;background:transparent;color:rgba(255,255,255,.7);font:600 12px "IBM Plex Mono",monospace;letter-spacing:.06em;padding:6px 10px;border-bottom:2px solid transparent}
+.tabs button{border:0;background:transparent;color:var(--muted);font:600 12px "IBM Plex Mono",monospace;letter-spacing:.06em;padding:6px 10px;border-bottom:2px solid transparent}
 .tabs button kbd{opacity:.6;margin-right:6px;font:inherit}
-.tabs button.on{color:#fff;border-bottom-color:#2cb8ea}
+.tabs button.on{color:var(--ink);border-bottom-color:var(--accent)}
 .top .sp{flex:1}
-.clock{font:500 12px "IBM Plex Mono",monospace;opacity:.85;white-space:nowrap}
-.icon-btn{border:1px solid rgba(255,255,255,.25);background:transparent;color:#fff;width:28px;height:28px;display:grid;place-items:center;padding:0;opacity:.8}
-.icon-btn:hover{opacity:1}
+.clock{font:500 12px "IBM Plex Mono",monospace;color:var(--muted);white-space:nowrap}
+.icon-btn{border:1px solid var(--line-2);background:transparent;color:var(--muted);width:28px;height:28px;display:grid;place-items:center;padding:0}
+.icon-btn:hover{color:var(--ink);border-color:var(--accent)}
 .icon-btn svg{width:15px;height:15px}
 
 /* ---- ticker ---- */

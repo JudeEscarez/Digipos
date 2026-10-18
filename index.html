@@ -186,6 +186,34 @@ tr.flash{animation:flash 2.4s}
 
 @media (max-width:1500px){ .hide-xl{display:none} .biz{width:36%} .area{width:22%} }
 
+
+/* ---- help ---- */
+.help{flex:1;min-height:0;overflow:auto;display:grid;grid-template-columns:230px minmax(0,780px);gap:40px;padding:28px 32px 60px;justify-content:center;background:var(--panel)}
+.toc{position:sticky;top:0;align-self:start;display:flex;flex-direction:column;gap:2px}
+.toc a{color:var(--muted);text-decoration:none;padding:6px 10px;border-left:2px solid var(--line);font-size:13.5px}
+.toc a:hover{color:var(--ink);border-left-color:var(--bar)}
+.doc{max-width:780px;line-height:1.6}
+.doc h1{font-size:26px;margin:0 0 6px}
+.doc .lede{color:var(--muted);font-size:15.5px;margin:0 0 8px}
+.doc h2{font-size:18px;margin:38px 0 10px;padding-top:4px;display:flex;align-items:center;gap:10px;scroll-margin-top:12px}
+.doc h2::before{content:"";width:4px;height:18px;background:var(--bar)}
+.doc p,.doc li{color:var(--ink)}
+.doc ol,.doc ul{padding-left:22px}
+.doc li{margin:5px 0}
+.doc table{margin:10px 0 6px;border:1px solid var(--line)}
+.doc th{position:static;background:var(--head)}
+.doc td{white-space:normal;text-align:left;vertical-align:top}
+.doc td.n{text-align:right;white-space:nowrap}
+.doc .muted{color:var(--muted)}
+.doc kbd{font:600 12px "IBM Plex Mono",monospace;border:1px solid var(--line-2);padding:1px 6px;background:var(--head)}
+.flow{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1px;background:var(--line);border:1px solid var(--line);margin:14px 0}
+.flow div{background:var(--head);padding:12px 14px}
+.flow b{display:block;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--accent-t);margin-bottom:4px}
+.callout{border-left:3px solid var(--bar);background:var(--head);padding:10px 14px;margin:12px 0}
+.faq dt{font-weight:700;margin-top:16px}
+.faq dd{margin:4px 0 0;color:var(--ink)}
+@media (max-width:900px){ .help{grid-template-columns:1fr;padding:18px 16px 40px;gap:0} .toc{display:none} .flow{grid-template-columns:1fr} }
+
 /* ---- tablet / phone ---- */
 @media (max-width:1100px){
   html,body{height:auto}
@@ -239,6 +267,7 @@ tr.flash{animation:flash 2.4s}
   <nav class="tabs">
     <button data-tab="leads" class="on">Leads</button>
     <button data-tab="health">Merchant health</button>
+    <button data-tab="help">Help</button>
   </nav>
   <div class="sp"></div>
   <div class="clock num" id="clock"></div>
@@ -264,13 +293,160 @@ tr.flash{animation:flash 2.4s}
       </section>
       <section class="panel p-cov">
         <div class="ph"><h2>Areas</h2></div>
-        <div class="note">When a rep finds a business that already has a terminal, the other leads in that area drop 6 points.</div>
+        <div class="note">When a rep finds a business that already has a terminal, the other leads in that area drop 6 points. <a href="#" data-help="h-learn">How it learns</a></div>
         <div class="scroll"><table id="covTable"></table></div>
       </section>
       <section class="panel p-log">
         <div class="ph"><h2>Recent visits</h2><span class="r" id="logMeta"></span></div>
         <div class="scroll"><div class="log" id="log"></div></div>
       </section>
+    </div>
+  </section>
+
+
+  <section class="view" id="helpView" hidden>
+    <div class="help">
+      <nav class="toc">
+        <a href="#h-what">What Lead Radar does</a>
+        <a href="#h-start">Quick start</a>
+        <a href="#h-screen">The screen at a glance</a>
+        <a href="#h-score">How a score is worked out</a>
+        <a href="#h-visit">Logging a visit</a>
+        <a href="#h-learn">How it learns</a>
+        <a href="#h-health">Merchant health</a>
+        <a href="#h-data">What's real and what isn't</a>
+        <a href="#h-keys">Keyboard shortcuts</a>
+        <a href="#h-faq">Common questions</a>
+      </nav>
+      <article class="doc">
+        <h1>How Lead Radar works</h1>
+        <p class="lede">A short guide for sales reps, managers and anyone watching the demo.</p>
+
+        <h2 id="h-what">What Lead Radar does</h2>
+        <ul>
+          <li><b>Finds businesses worth visiting</b> across the UAE and ranks them, so reps start with the most promising ones.</li>
+          <li><b>Explains every ranking</b> in plain words, so nobody has to trust a number blindly.</li>
+          <li><b>Learns from visits.</b> When a rep reports back, the list updates for everyone.</li>
+          <li><b>Watches existing customers</b> and flags those whose card volume is falling, so they can be called before they leave.</li>
+        </ul>
+
+        <h2 id="h-start">Quick start</h2>
+        <ol>
+          <li>On the <b>Leads</b> tab, choose an <b>Emirate</b> (for example Dubai).</li>
+          <li>Start at the top of <b>Leads to visit</b>. The list is sorted by score, highest first.</li>
+          <li>Click a business. <b>Lead details</b> shows why it ranks there and a ready-made WhatsApp message.</li>
+          <li>Send the message or visit in person.</li>
+          <li>Afterwards, answer <b>“What happened at the visit?”</b>. The list updates straight away.</li>
+        </ol>
+
+        <h2 id="h-screen">The screen at a glance</h2>
+        <table>
+          <thead><tr><th class="l">Part</th><th class="l">What it shows</th></tr></thead>
+          <tbody>
+            <tr><td><b>Top strip</b></td><td>Headline numbers: how many leads, how many still to visit, terminals found by reps, sign-ups, and merchants at risk.</td></tr>
+            <tr><td><b>Emirate / Type filters</b></td><td>Narrow the list. <i>Established</i> = businesses that have been open a while. <i>New openings</i> = recently licensed businesses. The number on each button is how many leads it holds.</td></tr>
+            <tr><td><b>Leads to visit</b></td><td>The ranked list. <i>Score</i> is out of 100. <i>Change</i> shows ▼ or ▲ when a recent visit moved the score.</td></tr>
+            <tr><td><b>Lead details</b></td><td>Everything about the selected business: the score and why, how the score is built, the visit buttons, the WhatsApp message and source links.</td></tr>
+            <tr><td><b>Areas</b></td><td>Each neighbourhood, how many leads it has, and how many businesses there reps found already have a terminal. The red bar shows how covered the area is.</td></tr>
+            <tr><td><b>Recent visits</b></td><td>A running log of what reps reported and what it changed.</td></tr>
+            <tr><td><b>Bottom bar</b></td><td>Whether you're seeing live data or the offline copy, when the data was collected, and the <i>Reset demo</i> link.</td></tr>
+          </tbody>
+        </table>
+
+        <h2 id="h-score">How a score is worked out</h2>
+        <p>Every business gets up to 100 points from five things. The detail panel shows each one as a bar.</p>
+        <table>
+          <thead><tr><th class="l">Part</th><th>Max</th><th class="l">What earns points</th></tr></thead>
+          <tbody>
+            <tr><td><b>Newly opened</b></td><td class="n">30</td><td>Opened recently. New businesses are the most likely to still need a terminal. Under 3 months scores full points.</td></tr>
+            <tr><td><b>Business size</b></td><td class="n">25</td><td>More Google reviews and a higher price level suggest more customers paying. For brand-new businesses it's estimated from the type and area.</td></tr>
+            <tr><td><b>Fits card payments</b></td><td class="n">20</td><td>Cafés and restaurants score highest, then shops, salons and clinics. Small chains lose 3 points, and developer-run sites lose 5, because a head office may decide.</td></tr>
+            <tr><td><b>Busy area</b></td><td class="n">15</td><td>Busy commercial areas score higher. <b>This goes down when reps find terminals nearby</b> (see “How it learns”).</td></tr>
+            <tr><td><b>Easy to contact</b></td><td class="n">10</td><td>6 points for a listed phone number and 4 for a website.</td></tr>
+          </tbody>
+        </table>
+        <p>A few extra rules:</p>
+        <ul>
+          <li>Reviews that say the shop is <b>cash only</b>: +5.</li>
+          <li>Reviews that show <b>cards are already accepted</b>: −25.</li>
+          <li>A <b>restricted business type</b> (for example tobacco or money exchange) scores 0 and shouldn't be visited.</li>
+        </ul>
+        <div class="callout">The point values are starting assumptions for the demo. They can be changed in one place once real results come in.</div>
+
+        <h2 id="h-visit">Logging a visit</h2>
+        <table>
+          <thead><tr><th class="l">Button</th><th class="l">What happens</th></tr></thead>
+          <tbody>
+            <tr><td><b>Interested</b></td><td>The business stays in the list, tagged “Interested”, so someone follows up.</td></tr>
+            <tr><td><b>Not now</b></td><td>The business stays in the list, tagged “Not now”, to try again later.</td></tr>
+            <tr><td><b>Already has a terminal</b></td><td>The business moves to the bottom. <b>Other leads in the same area drop 6 points</b> (up to 15 in total).</td></tr>
+            <tr><td><b>Signed up</b></td><td>The business moves to the bottom and is counted in “Signed up” at the top.</td></tr>
+          </tbody>
+        </table>
+        <p>Pressed the wrong button? Use <b>↶ Undo last action</b> in the detail panel. It puts every score back exactly as it was.</p>
+
+        <h2 id="h-learn">How it learns</h2>
+        <p>If one business in an area already has a card terminal, its neighbours probably have been approached too. So the system quietly lowers the priority of that area and moves reps' attention elsewhere.</p>
+        <div class="flow">
+          <div><b>1 · A rep reports</b>Art of Teeth Dental Clinic in Al Barsha <i>already has a terminal</i>.</div>
+          <div><b>2 · The area is updated</b>In <i>Areas</i>, Al Barsha's “Terminals found” goes from 0 to 1.</div>
+          <div><b>3 · Neighbours move down</b>The other Al Barsha clinics lose 6 points each and slide down the list (for example 63 → 57).</div>
+        </div>
+        <p>You can see all three on screen at once: the rows flash and show ▼ 6, the Areas row turns red, and <i>Recent visits</i> records what happened.</p>
+
+        <h2 id="h-health">Merchant health</h2>
+        <p>This tab tracks existing Digipos customers by comparing September's card volume with June's.</p>
+        <table>
+          <thead><tr><th class="l">Status</th><th class="l">Rule</th><th class="l">Next step</th></tr></thead>
+          <tbody>
+            <tr><td><span class="pill At">At risk</span></td><td>Down 25% or more</td><td>Call this week</td></tr>
+            <tr><td><span class="pill Watch">Watch</span></td><td>Down 10–25%</td><td>Courtesy visit</td></tr>
+            <tr><td><span class="pill New">New (ramp-up)</span></td><td>Joined after June, so there's nothing to compare yet</td><td>Day 30 check-in</td></tr>
+            <tr><td><span class="pill Healthy">Healthy</span></td><td>Anything better</td><td>Suggest payment links</td></tr>
+          </tbody>
+        </table>
+        <p>The small line next to each merchant shows its volume from April to September. Red means falling, green means rising.</p>
+
+        <h2 id="h-data">What's real and what isn't</h2>
+        <table>
+          <thead><tr><th class="l">Data</th><th class="l">Source</th></tr></thead>
+          <tbody>
+            <tr><td><b>Leads</b> (no tag)</td><td>Real businesses from public Google Maps listings, collected 17 Oct 2026. Each has a link back to its listing.</td></tr>
+            <tr><td><b>Leads tagged “Example”</b></td><td>Made up. They show what new-opening leads will look like once trade licence data is connected. Not real businesses.</td></tr>
+            <tr><td><b>“New? (unverified)”</b></td><td>A real business that may be new, based on its reviews. The opening date still needs checking.</td></tr>
+            <tr><td><b>Merchant health</b></td><td>Simulated customers and volumes for the demo. Names are fictional.</td></tr>
+            <tr><td><b>WhatsApp messages</b></td><td>Pre-written from a template for each business type, so they work without internet.</td></tr>
+          </tbody>
+        </table>
+
+        <h2 id="h-keys">Keyboard shortcuts</h2>
+        <table>
+          <tbody>
+            <tr><td><kbd>↑</kbd> <kbd>↓</kbd> or <kbd>J</kbd> <kbd>K</kbd></td><td>Move up and down the list</td></tr>
+            <tr><td><kbd>1</kbd> <kbd>2</kbd> <kbd>3</kbd> <kbd>4</kbd></td><td>Interested · Not now · Already has a terminal · Signed up</td></tr>
+            <tr><td><kbd>U</kbd></td><td>Undo the last action</td></tr>
+            <tr><td><kbd>/</kbd></td><td>Search by business name or area</td></tr>
+            <tr><td><kbd>?</kbd></td><td>Open this guide</td></tr>
+            <tr><td><kbd>Esc</kbd></td><td>Clear search or close the detail panel on a phone</td></tr>
+          </tbody>
+        </table>
+
+        <h2 id="h-faq">Common questions</h2>
+        <dl class="faq">
+          <dt>Why does almost every lead show 8 / 30 for “Newly opened”?</dt>
+          <dd>Opening dates haven't been added to the spreadsheet yet, so every established business gets the same default. Once the dates are filled in, newer businesses will rise to the top.</dd>
+          <dt>Why do “Example” rows score so high?</dt>
+          <dd>They're set up as brand-new openings, which earn full points for newness. That's the point of the new-openings lane. They only appear when <i>Type</i> is set to <i>New openings</i> or <i>All</i>.</dd>
+          <dt>Why did a business move down when I didn't touch it?</dt>
+          <dd>A rep found a terminal at a business in the same area. Check <i>Recent visits</i> to see which one.</dd>
+          <dt>Can I put everything back the way it was?</dt>
+          <dd>Use <b>Undo last action</b> for one step, or <b>Reset demo</b> in the bottom bar to clear all logged visits.</dd>
+          <dt>Does it need the internet?</dt>
+          <dd>The live version reads from the online database. There's also an offline copy that runs on a laptop with no connection. The bottom bar shows which one you're using.</dd>
+          <dt>Who can log visits?</dt>
+          <dd>Anyone with the link, unless a demo passcode is switched on. If it is, you'll be asked for the code once per browser.</dd>
+        </dl>
+      </article>
     </div>
   </section>
 
@@ -371,7 +547,7 @@ function renderStatus(){
     <span><i class="dot ${off?"off":""}"></i>${off ? "Offline copy" : "Live data"}${state.locked ? " · locked" : ""}</span>
     <span>Leads collected 17 Oct 2026</span>
     <span>${real} real businesses · ${ex} example rows · ${state.health?.summary.tracked ?? 30} simulated merchants</span>
-    <span class="keys">Shortcuts: ↑ ↓ move · 1–4 log visit · U undo · / search</span>
+    <span class="keys">Shortcuts: ↑ ↓ move · 1–4 log visit · U undo · / search · ? help</span>
     <button id="reset">Reset demo</button>`;
 }
 function renderFilters(){
@@ -585,7 +761,7 @@ function openSheet(){ $("#detail").scrollTop = 0; $("#detailPanel").classList.ad
 function closeSheet(){ $("#detailPanel").classList.remove("open"); document.body.classList.remove("sheet"); }
 function showTab(tab){
   document.querySelectorAll(".tabs button").forEach(b => b.classList.toggle("on", b.dataset.tab === tab));
-  $("#leadsView").hidden = tab !== "leads"; $("#healthView").hidden = tab !== "health";
+  $("#leadsView").hidden = tab !== "leads"; $("#healthView").hidden = tab !== "health"; $("#helpView").hidden = tab !== "help";
   $("#toast").classList.remove("show"); closeSheet();
   if(tab === "health") renderHealth();
 }
@@ -602,6 +778,14 @@ tickClock(); setInterval(tickClock, 1000);
 
 /* ---------- events ---------- */
 document.addEventListener("click", e => {
+  const a = e.target.closest("[data-help], .toc a");
+  if(a){
+    e.preventDefault();
+    const id = a.dataset.help || a.getAttribute("href").slice(1);
+    showTab("help");
+    requestAnimationFrame(() => document.getElementById(id)?.scrollIntoView({behavior:"smooth", block:"start"}));
+    return;
+  }
   const t = e.target.closest("button, tr[data-id], th[data-sort]"); if(!t) return;
   if(t.matches("tr[data-id]")) return select(t.dataset.id, true);
   if(t.matches("th[data-sort]")){
@@ -631,6 +815,7 @@ document.addEventListener("keydown", e => {
   if(e.target.matches("input")){ if(e.key === "Escape"){ e.target.value = ""; state.q = ""; e.target.blur(); renderTable(); } return; }
   if(e.metaKey || e.ctrlKey || e.altKey) return;
   if(e.key === "Escape") return closeSheet();
+  if(e.key === "?") return showTab("help");
   if($("#leadsView").hidden) return;
   if(e.key === "j" || e.key === "ArrowDown"){ e.preventDefault(); return move(1); }
   if(e.key === "k" || e.key === "ArrowUp"){ e.preventDefault(); return move(-1); }

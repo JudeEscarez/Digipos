@@ -690,7 +690,7 @@ function aiPanel(l){
     ${ai.evidence ? `<q>${esc(ai.evidence)}</q>${ai.evidence_url ? `<div class="ai-f">From <a href="${esc(ai.evidence_url)}" target="_blank" rel="noopener">${esc(host(ai.evidence_url))}</a></div>` : ""}` : ""}
     ${ai.reason ? `<div class="ai-r">${esc(ai.reason)}</div>` : ""}
     ${btn}
-    <div class="ai-f">AI-assisted, verify before visiting${when ? ` · read ${when}` : ""}${links.length ? ` · ${web ? "sources" : "reviews"} ${links.join(" · ")}` : ""}${ai.error ? " · AI call failed, treated as unclear" : ""}</div>
+    <div class="ai-f">AI-assisted, verify before visiting${when ? ` · read ${when}` : ""}${links.length ? ` · ${web ? "sources" : "reviews"} ${links.join(" · ")}` : ""}${ai.error ? " · AI call failed, treated as unclear. Run it again." : ""}</div>
   </div>`;
 }
 
@@ -822,7 +822,7 @@ async function runAIOne(id){
 }
 async function runAIAll(){
   if(state.aiBatch) return toast("The AI check is already running.");
-  const todo = state.all.filter(l => !l.is_example && !l.ai);
+  const todo = state.all.filter(l => !l.is_example && (!l.ai || l.ai.error));
   if(!todo.length) return toast("Every real business already has an AI check. Use “Re-run AI check” on a lead to refresh one.");
   if(!confirm(`Run the AI check on ${todo.length} business${todo.length > 1 ? "es" : ""}?\n\nIt searches the web for each one (a few cents each on your Anthropic account) and takes several minutes. Keep this tab open until it finishes.`)) return;
   state.aiBatch = true;

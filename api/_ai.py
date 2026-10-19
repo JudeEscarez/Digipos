@@ -135,9 +135,9 @@ def web_user_message(lead):
 def call_model_web(system, user, emirate=None):
     """Runs the research turn with server-side web_search + web_fetch. Returns all content blocks as dicts."""
     tools = [
-        {"type": "web_search_20250305", "name": "web_search", "max_uses": MAX_SEARCHES,
-         "user_location": {"type": "approximate", "country": "AE", "timezone": "Asia/Dubai",
-                           **({"city": EMIRATE_CITY[emirate]} if emirate in EMIRATE_CITY else {})}},
+        # No user_location: the API rejects country "AE". The area and "United Arab Emirates"
+        # are already in the message, which is enough to aim the searches.
+        {"type": "web_search_20250305", "name": "web_search", "max_uses": MAX_SEARCHES},
         {"type": "web_fetch_20250910", "name": "web_fetch", "max_uses": MAX_FETCHES,
          "citations": {"enabled": True}, "max_content_tokens": 8000},
     ]

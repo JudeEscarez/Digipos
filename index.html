@@ -379,10 +379,10 @@ tr.flash{animation:flash 2.4s}
           <li>A <b>restricted business type</b> (for example tobacco or money exchange) scores 0 and shouldn't be visited.</li>
         </ul>
         <div class="callout">The point values are starting assumptions for the demo. They can be changed in one place once real results come in.</div>
-        <p><b>AI review check.</b> Before the demo, an AI model reads 3–5 customer review excerpts for each business. It answers four questions: is it cash only, does it already take cards, what type of business is it, and could it be a restricted category. Lead details shows what it found and the exact words it relied on, so anyone can check it against the real review.</p>
+        <p><b>AI review check.</b> Before the demo, an AI model searches the web for each business (review sites, delivery apps, its own website) and reads what it finds. It answers four questions: is it cash only, does it already take cards, what type of business is it, and could it be a restricted category. Lead details shows what it found and the exact words it relied on, so anyone can check it against the real review.</p>
         <ul>
           <li>If the reviews don't clearly say, the answer is “unclear” and the score doesn't change.</li>
-          <li>The quoted words must appear in the reviews. If they don't, the answer is thrown out.</li>
+          <li>The quoted words must appear on a page the AI actually opened, and that page must name the business. If not, the answer is thrown out.</li>
           <li>The AI never marks a business as restricted. It only adds a <b>Check with bank</b> tag for a person to confirm.</li>
           <li>It runs once ahead of time and the answers are saved, so the demo never depends on the AI or the internet.</li>
         </ul>
@@ -429,7 +429,7 @@ tr.flash{animation:flash 2.4s}
             <tr><td><b>Leads tagged “Example”</b></td><td>Made up. They show what new-opening leads will look like once trade licence data is connected. Not real businesses.</td></tr>
             <tr><td><b>“New? (unverified)”</b></td><td>A real business that may be new, based on its reviews. The opening date still needs checking.</td></tr>
             <tr><td><b>Merchant health</b></td><td>Simulated customers and volumes for the demo. Names are fictional.</td></tr>
-            <tr><td><b>AI review check</b></td><td>An AI model's reading of review excerpts copied from each public listing, run once before the demo. Marked “AI-assisted, verify before visiting”.</td></tr>
+            <tr><td><b>AI review check</b></td><td>An AI model's reading of public web pages about each business (or review excerpts copied from its listing), run once before the demo, with links to its sources. Marked “AI-assisted, verify before visiting”.</td></tr>
             <tr><td><b>WhatsApp messages</b></td><td>Pre-written from a template for each business type, so they work without internet.</td></tr>
           </tbody>
         </table>
@@ -670,14 +670,21 @@ function aiPanel(l){
   if(ai.cash_only === "yes") found.push("cash only");
   if(ai.cards_accepted === "yes") found.push("cards already accepted");
   if(ai.restricted_check === "yes") found.push("possible restricted category, check with the bank");
+  const web = ai.mode === "web";
   const read = ai.reviews_read ?? n;
   const when = ai.run_at ? new Date(ai.run_at).toLocaleDateString("en-GB",{day:"numeric",month:"short",year:"numeric"}) : "";
-  const links = (l.review_excerpts || []).map((e,i) => e.link ? `<a href="${esc(e.link)}" target="_blank" rel="noopener">${i+1}</a>` : "").filter(Boolean);
+  const host = u => { try{ return new URL(u).hostname.replace(/^www\./, ""); }catch(e){ return "source"; } };
+  const links = web
+    ? (ai.sources || []).map(u => `<a href="${esc(u)}" target="_blank" rel="noopener">${esc(host(u))}</a>`)
+    : (l.review_excerpts || []).map((e,i) => e.link ? `<a href="${esc(e.link)}" target="_blank" rel="noopener">${i+1}</a>` : "").filter(Boolean);
+  const what = web
+    ? (read ? `AI checked ${read} online source${read === 1 ? "" : "s"}` : "AI searched online but found no source about this business")
+    : `AI read ${read} review${read === 1 ? "" : "s"}`;
   return `<div class="aibox">
-    <div class="ai-h">AI read ${read} review${read === 1 ? "" : "s"}. Found: ${found.length ? found.join("; ") : "nothing clear about card payments, so the score is unchanged"}.</div>
-    ${ai.evidence ? `<q>${esc(ai.evidence)}</q>` : ""}
+    <div class="ai-h">${what}. Found: ${found.length ? found.join("; ") : "nothing clear about card payments, so the score is unchanged"}.</div>
+    ${ai.evidence ? `<q>${esc(ai.evidence)}</q>${ai.evidence_url ? `<div class="ai-f">From <a href="${esc(ai.evidence_url)}" target="_blank" rel="noopener">${esc(host(ai.evidence_url))}</a></div>` : ""}` : ""}
     ${ai.reason ? `<div class="ai-r">${esc(ai.reason)}</div>` : ""}
-    <div class="ai-f">AI-assisted, verify before visiting${when ? ` · read ${when}` : ""}${links.length ? ` · reviews ${links.join(" ")}` : ""}${ai.error ? " · AI call failed, treated as unclear" : ""}</div>
+    <div class="ai-f">AI-assisted, verify before visiting${when ? ` · read ${when}` : ""}${links.length ? ` · ${web ? "sources" : "reviews"} ${links.join(" · ")}` : ""}${ai.error ? " · AI call failed, treated as unclear" : ""}</div>
   </div>`;
 }
 

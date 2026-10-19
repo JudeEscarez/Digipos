@@ -85,6 +85,19 @@ Keyboard: ↑/↓ (or J/K) move, `1`–`4` log a visit outcome, `U` undo, `/` se
 
 An AI model reads 3–5 review excerpts per business and returns cash only / cards accepted / business type / restricted check, with the exact quote it relied on. Results are saved with each lead; scoring uses them (cash only +5, cards accepted −25, restricted only adds a "Check with bank" flag). "Unclear" changes nothing.
 
+**Fastest: let the AI do the research (no spreadsheet work).**
+
+```bash
+pip install anthropic
+export ANTHROPIC_API_KEY=...        # plus SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY in .env to save to the live site
+python scripts/ai_review_reader.py --web --only L009      # try one business first
+python scripts/ai_review_reader.py --web                  # all 38 real businesses (about 5–10 minutes)
+```
+
+The model searches the web (max 3 searches) and opens pages (max 3) for each business, then answers the same questions with a quote and the page it came from. The script only accepts a "yes" if the quote is on a page the AI actually opened **and** that page names the business; otherwise it becomes "unclear". Results save as it goes; if a run stops, re-run with `--skip-done`. Expected cost for 38 businesses: roughly $1–3 (web search is $10 per 1,000 searches plus tokens).
+
+**Alternative: you supply the excerpts.**
+
 1. Fill the **Review excerpts** sheet in the workbook (lead_id, excerpt copied word for word, link).
 2. `python scripts/import_xlsx.py Digipos_demo_data_3.xlsx --push`
 3. `pip install anthropic` and set `ANTHROPIC_API_KEY` (environment only, never in the repo). Optional: `AI_MODEL` (default `claude-sonnet-5-5`).

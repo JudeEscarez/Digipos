@@ -20,6 +20,14 @@ from datetime import date, datetime
 import openpyxl
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+# Load keys from .env (SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, ANTHROPIC_API_KEY) if present.
+_env = os.path.join(ROOT, ".env")
+if os.path.exists(_env):
+    for _line in open(_env):
+        if "=" in _line and not _line.strip().startswith("#"):
+            _k, _v = _line.strip().split("=", 1)
+            os.environ.setdefault(_k.strip(), _v.strip().strip('"'))
 spec = importlib.util.spec_from_file_location("api_core", os.path.join(ROOT, "api", "index.py"))
 core = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(core)

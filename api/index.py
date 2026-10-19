@@ -155,21 +155,33 @@ def score_lead(lead, coverage):
              "location": location, "contact": contact}
     total = sum(parts.values())
 
-    # Signals outside the 100 points
+    # Signals outside the 100 points. The saved AI review reading (if any) and the
+    # hand-entered card_signal both count; "unclear" from the AI changes nothing.
     signal = (lead.get("card_signal") or "").lower()
-    if "cash" in signal:
+    ai = lead.get("ai") or {}
+    cash = ai.get("cash_only") == "yes" or "cash" in signal
+    cards = ai.get("cards_accepted") == "yes" or "served" in signal
+    if cash and cards:
+        notes.insert(0, "reviews disagree on card payments, check on the visit")
+    elif cash:
         total += 5
         parts["signal"] = 5
-        notes.insert(0, "reviews mention cash only")
-    elif "served" in signal:
+        notes.insert(0, ("AI review check: cash only" if ai.get("cash_only") == "yes" else "reviews mention cash only"))
+    elif cards:
         total -= 25
         parts["signal"] = -25
-        notes.insert(0, "reviews suggest cards already accepted")
+        notes.insert(0, ("AI review check: cards already accepted" if ai.get("cards_accepted") == "yes"
+                         else "reviews suggest cards already accepted"))
 
+    # A hand-set restricted flag (or a known restricted category) zeroes the score.
+    # The AI can only raise a "check with bank" flag for a person to confirm.
     restricted = bool(lead.get("restricted")) or cat in RESTRICTED_CATEGORIES
     if restricted:
         total = 0
         parts["restricted"] = True
+    elif ai.get("restricted_check") == "yes":
+        parts["check_bank"] = True
+        notes.append("AI flagged a possible restricted category, check with the bank")
 
     total = max(0, min(100, int(round(total))))
 

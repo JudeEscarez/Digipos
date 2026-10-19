@@ -80,3 +80,15 @@ Keyboard: ↑/↓ (or J/K) move, `1`–`4` log a visit outcome, `U` undo, `/` se
 3. Tap **Already has a terminal**. The other Al Barsha clinics slide down the list, with "63 → 57" badges.
 4. Open the **Merchant health** tab: 5 at risk, AED 195,500 of September volume at risk.
 5. Afterwards, click **Reset demo** in the footer.
+
+## AI review check (optional, run before the demo)
+
+An AI model reads 3–5 review excerpts per business and returns cash only / cards accepted / business type / restricted check, with the exact quote it relied on. Results are saved with each lead; scoring uses them (cash only +5, cards accepted −25, restricted only adds a "Check with bank" flag). "Unclear" changes nothing.
+
+1. Fill the **Review excerpts** sheet in the workbook (lead_id, excerpt copied word for word, link).
+2. `python scripts/import_xlsx.py Digipos_demo_data_3.xlsx --push`
+3. `pip install anthropic` and set `ANTHROPIC_API_KEY` (environment only, never in the repo). Optional: `AI_MODEL` (default `claude-sonnet-5-5`).
+4. `python scripts/ai_review_reader.py --test` (sanity checks), then `python scripts/ai_review_reader.py` (reads, saves to Supabase, re-scores).
+5. For the report: write your own answers for 10 businesses in `data/human_labels.csv` (`lead_id,cash_only,cards_accepted`) and run `python scripts/ai_review_reader.py --eval data/human_labels.csv`.
+
+The instruction given to the AI lives in `prompts/review_reader.txt`. A "yes" without a quote that really appears in the excerpts is downgraded to "unclear" by the script.

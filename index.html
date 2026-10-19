@@ -147,6 +147,13 @@ tr.flash{animation:flash 2.4s}
 .btn:disabled{opacity:.4;cursor:default}
 .btn.on{outline:2px solid var(--bar);outline-offset:-2px;opacity:1}
 .undo{margin-top:8px;width:100%;color:var(--muted)}
+.aibox{border:1px solid var(--line-2);border-left:3px solid var(--ex);padding:11px 13px;background:var(--head)}
+.aibox .ai-h{font-weight:600}
+.aibox q{display:block;margin:8px 0;font-style:italic;color:var(--ink);quotes:"“" "”"}
+.aibox .ai-r{margin-top:6px}
+.aibox .ai-f{margin-top:8px;font-size:12px;color:var(--dim)}
+.aibox.none{border-left-color:var(--line-2);color:var(--muted);font-size:13px}
+.tg.bank{color:var(--warn)}
 .msg{background:var(--head);border:1px solid var(--line);padding:11px 13px;white-space:pre-wrap}
 .row2{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
 .kv{display:grid;grid-template-columns:120px 1fr;gap:6px 12px;margin:0;font-size:13px}
@@ -372,6 +379,13 @@ tr.flash{animation:flash 2.4s}
           <li>A <b>restricted business type</b> (for example tobacco or money exchange) scores 0 and shouldn't be visited.</li>
         </ul>
         <div class="callout">The point values are starting assumptions for the demo. They can be changed in one place once real results come in.</div>
+        <p><b>AI review check.</b> Before the demo, an AI model reads 3–5 customer review excerpts for each business. It answers four questions: is it cash only, does it already take cards, what type of business is it, and could it be a restricted category. Lead details shows what it found and the exact words it relied on, so anyone can check it against the real review.</p>
+        <ul>
+          <li>If the reviews don't clearly say, the answer is “unclear” and the score doesn't change.</li>
+          <li>The quoted words must appear in the reviews. If they don't, the answer is thrown out.</li>
+          <li>The AI never marks a business as restricted. It only adds a <b>Check with bank</b> tag for a person to confirm.</li>
+          <li>It runs once ahead of time and the answers are saved, so the demo never depends on the AI or the internet.</li>
+        </ul>
 
         <h2 id="h-visit">Logging a visit</h2>
         <table>
@@ -415,6 +429,7 @@ tr.flash{animation:flash 2.4s}
             <tr><td><b>Leads tagged “Example”</b></td><td>Made up. They show what new-opening leads will look like once trade licence data is connected. Not real businesses.</td></tr>
             <tr><td><b>“New? (unverified)”</b></td><td>A real business that may be new, based on its reviews. The opening date still needs checking.</td></tr>
             <tr><td><b>Merchant health</b></td><td>Simulated customers and volumes for the demo. Names are fictional.</td></tr>
+            <tr><td><b>AI review check</b></td><td>An AI model's reading of review excerpts copied from each public listing, run once before the demo. Marked “AI-assisted, verify before visiting”.</td></tr>
             <tr><td><b>WhatsApp messages</b></td><td>Pre-written from a template for each business type, so they work without internet.</td></tr>
           </tbody>
         </table>
@@ -576,6 +591,7 @@ function renderTable(animate){
       const d = state.deltas[l.id];
       const tags = (l.is_example ? `<span class="tg ex">Example</span>` : "") +
         (l.lane === "new_opening" && !l.is_example ? `<span class="tg nw">New? (unverified)</span>` : "") +
+        (l.score_parts?.check_bank ? `<span class="tg bank">Check with bank</span>` : "") +
         (l.status !== "open" ? `<span class="tg ${ST[l.status][1]}">${ST[l.status][0]}</span>` : "");
       const delta = d ? d.to - d.from : 0;
       return `<tr data-id="${l.id}" class="${state.selected===l.id?"sel":""} ${closed(l)?"closed":""} ${d?"flash":""}">
@@ -620,7 +636,10 @@ function renderDetail(){
 
     <div class="sect">How the score is built</div>
     ${PARTS.map(([k,label,hint,w]) => `<div class="comp"><span class="lb">${label}</span><span class="br"><b style="width:${(p[k]||0)/w*100}%"></b></span><span class="vv num">${p[k]||0} / ${w}</span><span class="hint">${hint}</span></div>`).join("")}
-    ${p.signal ? `<div class="comp"><span class="lb">Review signal</span><span></span><span class="vv num ${p.signal < 0 ? "dn" : "up"}">${p.signal > 0 ? "+" : ""}${p.signal}</span><span class="hint">${p.signal < 0 ? "Reviews suggest cards are already accepted" : "Reviews mention cash only"}</span></div>` : ""}
+    ${p.signal ? `<div class="comp"><span class="lb">Review signal</span><span></span><span class="vv num ${p.signal < 0 ? "dn" : "up"}">${p.signal > 0 ? "+" : ""}${p.signal}</span><span class="hint">${p.signal < 0 ? "Reviews show cards are already accepted" : "Reviews say cash only"}${l.ai && (l.ai.cash_only === "yes" || l.ai.cards_accepted === "yes") ? " (found by the AI review check)" : ""}</span></div>` : ""}
+
+    <div class="sect">AI review check</div>
+    ${aiPanel(l)}
 
     <div class="sect">What happened at the visit?</div>
     <div class="acts">${OUTCOMES.map(([k,label,cls]) => `<button class="btn ${cls} ${l.status===k ? "on" : ""}" data-outcome="${k}" ${l.status===k ? "disabled" : ""}>${l.status===k ? "✓ " : ""}${label}</button>`).join("")}</div>
@@ -640,6 +659,26 @@ function renderDetail(){
       <dt>Collected</dt><dd>${esc(l.date_collected || "—")}</dd>
       <dt>Links</dt><dd>${l.maps_link ? `<a href="${esc(l.maps_link)}" target="_blank" rel="noopener">Google Maps</a>` : "—"}${l.website ? ` · <a href="${esc(l.website)}" target="_blank" rel="noopener">Website</a>` : ""}</dd>
     </dl></div>`;
+}
+
+function aiPanel(l){
+  const ai = l.ai, n = (l.review_excerpts || []).length;
+  if(!ai){
+    return `<div class="aibox none">${n ? `${n} review excerpt${n>1?"s":""} saved, not analysed by the AI yet.` : "No review excerpts collected for this business yet, so the AI hasn't read it."}</div>`;
+  }
+  const found = [];
+  if(ai.cash_only === "yes") found.push("cash only");
+  if(ai.cards_accepted === "yes") found.push("cards already accepted");
+  if(ai.restricted_check === "yes") found.push("possible restricted category, check with the bank");
+  const read = ai.reviews_read ?? n;
+  const when = ai.run_at ? new Date(ai.run_at).toLocaleDateString("en-GB",{day:"numeric",month:"short",year:"numeric"}) : "";
+  const links = (l.review_excerpts || []).map((e,i) => e.link ? `<a href="${esc(e.link)}" target="_blank" rel="noopener">${i+1}</a>` : "").filter(Boolean);
+  return `<div class="aibox">
+    <div class="ai-h">AI read ${read} review${read === 1 ? "" : "s"}. Found: ${found.length ? found.join("; ") : "nothing clear about card payments, so the score is unchanged"}.</div>
+    ${ai.evidence ? `<q>${esc(ai.evidence)}</q>` : ""}
+    ${ai.reason ? `<div class="ai-r">${esc(ai.reason)}</div>` : ""}
+    <div class="ai-f">AI-assisted, verify before visiting${when ? ` · read ${when}` : ""}${links.length ? ` · reviews ${links.join(" ")}` : ""}${ai.error ? " · AI call failed, treated as unclear" : ""}</div>
+  </div>`;
 }
 
 /* ---------- render: areas + visits ---------- */

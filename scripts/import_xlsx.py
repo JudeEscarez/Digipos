@@ -72,8 +72,27 @@ def read_leads(wb):
             "restricted": yes(r[col["restricted_flag"]]), "chain_check": r[col["chain_check"]],
             "date_collected": iso(r[col["date_collected"]]),
             "data_source": "google_places", "is_example": False,
+            "review_excerpts": [], "ai": None,
         })
     return out
+
+
+def read_excerpts(wb):
+    """Optional sheet 'Review excerpts': lead_id | business_name | excerpt | link (one row per excerpt)."""
+    if "Review excerpts" not in wb.sheetnames:
+        return {}
+    ws = wb["Review excerpts"]
+    header = [str(c.value or "").strip().lower() for c in ws[1]]
+    col = {h: i for i, h in enumerate(header)}
+    out = {}
+    for r in ws.iter_rows(min_row=2, values_only=True):
+        lid = r[col["lead_id"]] if "lead_id" in col else None
+        text = r[col["excerpt"]] if "excerpt" in col else None
+        if not lid or not text or not str(text).strip():
+            continue
+        link = r[col["link"]] if "link" in col else None
+        out.setdefault(str(lid).strip(), []).append({"text": str(text).strip(), "link": link})
+    return {k: v[:5] for k, v in out.items()}
 
 
 def read_merchants(wb):
@@ -100,6 +119,7 @@ def examples():
                                  "oldest_review_date", "card_signal", "card_signal_note",
                                  "chain_check", "date_collected")}
         row.update(e)
+        row.update(review_excerpts=[], ai=None)
         row.update(lane="new_opening", lane_label="New opening — EXAMPLE FORMAT, not a real business",
                    emirate="Dubai", cluster=core.cluster_for(e["area"], "Dubai"),
                    restricted=False, data_source="example", is_example=True)
@@ -139,6 +159,16 @@ def main():
     leads = read_leads(wb) + ([] if a.no_examples else examples())
     merchants = read_merchants(wb)
 
+    excerpts = read_excerpts(wb)
+    ai_path = os.path.join(ROOT, "data", "ai_results.json")
+    ai_results = json.load(open(ai_path)) if os.path.exists(ai_path) else {}
+    for l in leads:
+        if l["id"] in excerpts:
+            l["review_excerpts"] = excerpts[l["id"]]
+        if l["id"] in ai_results:
+            l["ai"] = ai_results[l["id"]]
+    print(f"Review excerpts: {sum(1 for l in leads if l['review_excerpts'])} leads · AI results: {sum(1 for l in leads if l['ai'])} leads")
+
     core.rescore(leads, [])  # fresh scores, no visits
     for l in leads:
         l["draft_message"] = core.draft_message(l)
@@ -159,7 +189,9 @@ def main():
         store = core.get_store()
         if not isinstance(store, core.SupabaseStore):
             sys.exit("Set SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY to push.")
-        store.insert_or_replace("leads", [{k: v for k, v in l.items() if k != "status"} for l in leads])
+        # "ai" is pushed separately so a re-import never wipes saved AI results with blanks.
+        store.insert_or_replace("leads", [{k: v for k, v in l.items() if k not in ("status", "ai")} for l in leads])
+        store.upsert_leads([{"id": l["id"], "ai": l["ai"]} for l in leads if l.get("ai")])
         store.insert_or_replace("merchants", merchants)
         # Re-apply any logged visits so statuses and coverage survive a re-import.
         store.upsert_leads(core.rescore(store.leads(), store.visits()))

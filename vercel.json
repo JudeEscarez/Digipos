@@ -1,5 +1,5 @@
 {
   "rewrites": [{ "source": "/api/(.*)", "destination": "/api/index?route=$1" }],
-  "functions": { "api/index.py": { "maxDuration": 10, "includeFiles": "index.html" } },
+  "functions": { "api/index.py": { "maxDuration": 300, "includeFiles": "{index.html,api/_ai.py,prompts/**}" } },
   "regions": ["bom1"]
 }

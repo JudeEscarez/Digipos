@@ -489,6 +489,38 @@ def route_activity(store):
     return {"activity": out}
 
 
+def route_ai_research(store, body):
+    """Run the web AI review check for ONE lead (keeps each request well under Vercel's time limit)."""
+    if not os.environ.get("DEMO_PASSCODE"):
+        return 403, {"error": "Set DEMO_PASSCODE in Vercel first, so only your team can run paid AI checks."}
+    if not os.environ.get("ANTHROPIC_API_KEY"):
+        return 400, {"error": "Add ANTHROPIC_API_KEY in Vercel (Settings, Environment Variables) and redeploy."}
+    import sys
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    try:
+        import _ai
+    except ImportError:
+        return 500, {"error": "AI code missing from this deployment (api/_ai.py). Redeploy from GitHub."}
+    lead_id = (body or {}).get("lead_id")
+    leads = store.leads()
+    lead = next((l for l in leads if l["id"] == lead_id), None)
+    if not lead:
+        return 404, {"error": f"unknown lead {lead_id}"}
+    if lead.get("is_example"):
+        return 400, {"error": "Example rows are not real businesses, so there is nothing to research."}
+    with open(_ai.WEB_PROMPT_PATH) as f:
+        system = f.read()
+    before = lead.get("score")
+    out, usage = _ai.research_web(lead, system)
+    lead["ai"] = out
+    # The AI result only changes THIS lead's score, so save only this lead. (Several checks can
+    # run at once; re-saving every lead from a stale copy would overwrite each other's results.)
+    changed = [c for c in rescore(leads, store.visits()) if c["id"] == lead_id]
+    store.upsert_leads([dict(c, ai=out) for c in changed] or [{"id": lead_id, "ai": out}])
+    return 200, {"ok": True, "lead_id": lead_id, "name": lead.get("business_name"), "ai": out,
+                 "usage": usage, "score_before": before, "score": lead.get("score")}
+
+
 def route_reset(store):
     store.clear_visits()
     leads = store.leads()
@@ -508,6 +540,8 @@ def dispatch(method, path, query, body, headers=None):
             return 200, route_activity(store)
         if method == "POST" and name == "undo":
             return route_undo(store)
+        if method == "POST" and name == "ai-research":
+            return route_ai_research(store, body)
         if method == "GET" and name == "leads":
             return 200, route_leads(store, query)
         if method == "GET" and name == "health":

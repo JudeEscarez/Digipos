@@ -9,6 +9,7 @@ Run the whole demo on a laptop:  python dev_server.py   then open http://localho
 import importlib.util
 import json
 import os
+import threading
 import urllib.parse
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 
@@ -28,6 +29,9 @@ core = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(core)
 
 
+LOCK = threading.Lock()
+
+
 class Handler(SimpleHTTPRequestHandler):
     def __init__(self, *a, **kw):
         super().__init__(*a, directory=ROOT, **kw)
@@ -39,8 +43,9 @@ class Handler(SimpleHTTPRequestHandler):
         if method == "POST":
             n = int(self.headers.get("Content-Length") or 0)
             body = json.loads(self.rfile.read(n) or b"{}") if n else {}
-        status, payload = core.dispatch(method, parsed.path, query, body,
-                                        {"X-Demo-Key": self.headers.get("X-Demo-Key")})
+        with LOCK:  # the offline JSON file can't take simultaneous writes
+            status, payload = core.dispatch(method, parsed.path, query, body,
+                                            {"X-Demo-Key": self.headers.get("X-Demo-Key")})
         out = json.dumps(payload, default=str).encode()
         self.send_response(status)
         self.send_header("Content-Type", "application/json")

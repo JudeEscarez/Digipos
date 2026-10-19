@@ -85,10 +85,15 @@ Keyboard: ↑/↓ (or J/K) move, `1`–`4` log a visit outcome, `U` undo, `/` se
 
 An AI model reads 3–5 review excerpts per business and returns cash only / cards accepted / business type / restricted check, with the exact quote it relied on. Results are saved with each lead; scoring uses them (cash only +5, cards accepted −25, restricted only adds a "Check with bank" flag). "Unclear" changes nothing.
 
-**Fastest: let the AI do the research (no spreadsheet work).**
+**Easiest: run it from the website (works on Vercel's free plan).**
+
+1. In Vercel → Settings → Environment Variables add `ANTHROPIC_API_KEY` (your Anthropic key) and `DEMO_PASSCODE` (any code; required, so visitors can't spend your credits). Redeploy.
+2. Open the site, click **Run AI check on all** in the bottom bar, enter the passcode, keep the tab open (about 5–10 minutes for 38 businesses; 3 run at a time, one business per request).
+3. Each lead's AI panel also has **Run AI check / Re-run AI check** for a single business.
+
+**Or from a laptop (same AI, no website needed).**
 
 ```bash
-pip install anthropic
 export ANTHROPIC_API_KEY=...        # plus SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY in .env to save to the live site
 python scripts/ai_review_reader.py --web --only L009      # try one business first
 python scripts/ai_review_reader.py --web                  # all 38 real businesses (about 5–10 minutes)

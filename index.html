@@ -154,6 +154,8 @@ tr.flash{animation:flash 2.4s}
 .aibox .ai-f{margin-top:8px;font-size:12px;color:var(--dim)}
 .aibox.none{border-left-color:var(--line-2);color:var(--muted);font-size:13px}
 .tg.bank{color:var(--warn)}
+.ai-run{margin-top:8px;border:1px solid var(--line-2);background:none;color:var(--accent-t);font-size:12.5px;font-weight:600;padding:5px 10px}
+.ai-run:disabled{opacity:.6;cursor:wait}
 .msg{background:var(--head);border:1px solid var(--line);padding:11px 13px;white-space:pre-wrap}
 .row2{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
 .kv{display:grid;grid-template-columns:120px 1fr;gap:6px 12px;margin:0;font-size:13px}
@@ -491,7 +493,7 @@ const ST = {interested:["Interested","in"],not_now:["Not now","no"],has_terminal
 const OUT_LABEL = {interested:"Interested",not_now:"Not now",has_terminal:"Has terminal",signed:"Signed up"};
 
 const state = {emirate:"All", lane:"established", q:"", sort:{key:"score",dir:-1}, all:[], selected:null,
-  deltas:{}, activity:[], logNotes:{}, logFresh:false, health:null, store:"", locked:false, flashCluster:null};
+  deltas:{}, activity:[], logNotes:{}, logFresh:false, aiBusy:{}, aiBatch:false, health:null, store:"", locked:false, flashCluster:null};
 const $ = s => document.querySelector(s);
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const fmt = n => Number(n||0).toLocaleString("en-US");
@@ -563,6 +565,7 @@ function renderStatus(){
     <span>Leads collected 17 Oct 2026</span>
     <span>${real} real businesses · ${ex} example rows · ${state.health?.summary.tracked ?? 30} simulated merchants</span>
     <span class="keys">Shortcuts: ↑ ↓ move · 1–4 log visit · U undo · / search · ? help</span>
+    <button id="aiAll">Run AI check on all</button>
     <button id="reset">Reset demo</button>`;
 }
 function renderFilters(){
@@ -663,8 +666,10 @@ function renderDetail(){
 
 function aiPanel(l){
   const ai = l.ai, n = (l.review_excerpts || []).length;
+  const busy = state.aiBusy[l.id];
+  const btn = l.is_example ? "" : `<button class="ai-run" data-ai-run="${l.id}" ${busy ? "disabled" : ""}>${busy ? "AI is researching… (up to a minute)" : ai ? "Re-run AI check" : "Run AI check"}</button>`;
   if(!ai){
-    return `<div class="aibox none">${n ? `${n} review excerpt${n>1?"s":""} saved, not analysed by the AI yet.` : "No review excerpts collected for this business yet, so the AI hasn't read it."}</div>`;
+    return `<div class="aibox none">${l.is_example ? "Example row, not a real business, so there is nothing to research." : "Not checked by the AI yet."}<div>${btn}</div></div>`;
   }
   const found = [];
   if(ai.cash_only === "yes") found.push("cash only");
@@ -684,6 +689,7 @@ function aiPanel(l){
     <div class="ai-h">${what}. Found: ${found.length ? found.join("; ") : "nothing clear about card payments, so the score is unchanged"}.</div>
     ${ai.evidence ? `<q>${esc(ai.evidence)}</q>${ai.evidence_url ? `<div class="ai-f">From <a href="${esc(ai.evidence_url)}" target="_blank" rel="noopener">${esc(host(ai.evidence_url))}</a></div>` : ""}` : ""}
     ${ai.reason ? `<div class="ai-r">${esc(ai.reason)}</div>` : ""}
+    ${btn}
     <div class="ai-f">AI-assisted, verify before visiting${when ? ` · read ${when}` : ""}${links.length ? ` · ${web ? "sources" : "reviews"} ${links.join(" · ")}` : ""}${ai.error ? " · AI call failed, treated as unclear" : ""}</div>
   </div>`;
 }
@@ -792,6 +798,59 @@ async function undo(){
   }catch(e){ toast("Could not undo: " + e.message); }
   busy = false;
 }
+async function aiResearch(id){
+  return api("ai-research", {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({lead_id:id})});
+}
+function aiSummary(r){
+  const a = r.ai || {};
+  if(a.error) return `couldn't finish (${a.error.slice(0, 80)})`;
+  const f = [];
+  if(a.cash_only === "yes") f.push("cash only");
+  if(a.cards_accepted === "yes") f.push("cards already accepted");
+  if(a.restricted_check === "yes") f.push("check with bank");
+  return f.length ? f.join(", ") + (r.score !== r.score_before ? ` (score ${r.score_before} → ${r.score})` : "") : "nothing clear, score unchanged";
+}
+async function runAIOne(id){
+  if(state.aiBusy[id]) return;
+  state.aiBusy[id] = true; renderDetail();
+  try{
+    const r = await aiResearch(id);
+    await loadLeads(); renderAll();
+    toast(`AI check for ${r.name}: ${aiSummary(r)}.`);
+  }catch(e){ toast("AI check failed: " + e.message); }
+  delete state.aiBusy[id]; renderDetail();
+}
+async function runAIAll(){
+  if(state.aiBatch) return toast("The AI check is already running.");
+  const todo = state.all.filter(l => !l.is_example && !l.ai);
+  if(!todo.length) return toast("Every real business already has an AI check. Use “Re-run AI check” on a lead to refresh one.");
+  if(!confirm(`Run the AI check on ${todo.length} business${todo.length > 1 ? "es" : ""}?\n\nIt searches the web for each one (a few cents each on your Anthropic account) and takes several minutes. Keep this tab open until it finishes.`)) return;
+  state.aiBatch = true;
+  let done = 0, failed = 0, found = 0; const queue = [...todo];
+  const t = $("#toast");
+  const progress = () => { t.textContent = `AI check: ${done} of ${todo.length} done${found ? ` · ${found} with a finding` : ""}${failed ? ` · ${failed} failed` : ""}. Keep this tab open.`; t.classList.add("show"); clearTimeout(t._h); };
+  progress();
+  const worker = async () => {
+    while(queue.length){
+      const l = queue.shift(); state.aiBusy[l.id] = true;
+      try{
+        const r = await aiResearch(l.id);
+        const a = r.ai || {};
+        if(a.error) failed++;
+        if(a.cash_only === "yes" || a.cards_accepted === "yes" || a.restricted_check === "yes") found++;
+      }catch(e){
+        failed++;
+        if(/passcode|DEMO_PASSCODE|ANTHROPIC_API_KEY/.test(e.message)){ queue.length = 0; toast("AI check stopped: " + e.message); }
+      }
+      delete state.aiBusy[l.id]; done++; progress();
+      if(done % 3 === 0){ await loadLeads(); renderAll(); progress(); }
+    }
+  };
+  await Promise.all([worker(), worker(), worker()]);
+  state.aiBatch = false;
+  await loadLeads(); renderAll();
+  toast(`AI check finished: ${done} businesses, ${found} with a finding${failed ? `, ${failed} failed (run again to retry)` : ""}.`);
+}
 async function reset(){
   if(!confirm("Clear all logged visits and restore the original ranking?")) return;
   try{
@@ -855,6 +914,8 @@ document.addEventListener("click", e => {
   }
   if(t.dataset.tab) return showTab(t.dataset.tab);
   if(t.id === "reset") return reset();
+  if(t.id === "aiAll") return runAIAll();
+  if(t.dataset.aiRun) return runAIOne(t.dataset.aiRun);
 });
 $("#q").addEventListener("input", e => { state.q = e.target.value; renderTable(); renderDetail(); });
 document.addEventListener("keydown", e => {
